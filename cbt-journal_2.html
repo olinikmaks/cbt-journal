@@ -309,7 +309,6 @@ function signIn() {
 
 function hideAuth() {
   document.getElementById('auth-overlay').classList.add('hidden');
-  addDayEntry();
   renderEveningHistory();
 }
 
@@ -355,7 +354,7 @@ async function loadData() {
       const content = await driveRequest(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
       data = await content.json();
     }
-    addDayEntry();
+    if (dayFormEntries.length === 0) addDayEntry();
     renderEveningHistory();
     renderHistory();
   } catch(e) {
