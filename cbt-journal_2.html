@@ -22,8 +22,6 @@
   --star: #f5a623;
   --star-light: #fff8ee;
   --danger: #e84040;
-  --danger-light: #fff0f0;
-  --success: #2faa6a;
   --radius: 14px;
   --radius-sm: 9px;
   --safe-top: env(safe-area-inset-top, 0px);
@@ -50,44 +48,83 @@ html, body { height: 100%; background: var(--bg); font-family: -apple-system, Bl
 .page-sub { font-size: 13px; color: var(--text-sec); margin-top: 2px; }
 
 /* Cards */
-.card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px; margin-bottom: 12px; }
-.card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-.card-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; }
-.card-icon svg { width: 16px; height: 16px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.card-title { font-size: 15px; font-weight: 600; }
-.card-time { margin-left: auto; font-size: 12px; color: var(--text-hint); }
+.card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px; margin-bottom: 12px; transition: background 0.2s, border-color 0.2s; }
+
+/* Emotion card colors */
+.card.emo-red    { background: #FAECE7; border-color: #F5C4B3; }
+.card.emo-orange { background: #FAEEDA; border-color: #FAC775; }
+.card.emo-blue   { background: #E6F1FB; border-color: #B5D4F4; }
+.card.emo-green  { background: #EAF3DE; border-color: #C0DD97; }
+.card.emo-purple { background: #EEEDFE; border-color: #CECBF6; }
+.card.emo-pink   { background: #FBEAF0; border-color: #F4C0D1; }
+.card.emo-gray   { background: #F1EFE8; border-color: #D3D1C7; }
+
+/* Emotion badge */
+.emotion-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 12px; }
+.card.emo-red    .emotion-badge { background: #D85A30; color: #fff; }
+.card.emo-orange .emotion-badge { background: #BA7517; color: #fff; }
+.card.emo-blue   .emotion-badge { background: #378ADD; color: #fff; }
+.card.emo-green  .emotion-badge { background: #639922; color: #fff; }
+.card.emo-purple .emotion-badge { background: #534AB7; color: #fff; }
+.card.emo-pink   .emotion-badge { background: #D4537E; color: #fff; }
+.card.emo-gray   .emotion-badge { background: #5F5E5A; color: #fff; }
+
+/* Colored card text */
+.card.emo-red .field-label,.card.emo-orange .field-label,.card.emo-blue .field-label,
+.card.emo-green .field-label,.card.emo-purple .field-label,.card.emo-pink .field-label,
+.card.emo-gray .field-label { color: inherit; opacity: 0.6; }
+.card[class*="emo-"] .field-value { color: inherit; }
+.card[class*="emo-"] .divider { background: currentColor; opacity: 0.12; }
+.card[class*="emo-"] .card-time-small { opacity: 0.6; }
+
+/* Entry card header row */
+.entry-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.entry-hdr-left { display: flex; align-items: center; gap: 8px; }
+.card-time-small { font-size: 12px; color: var(--text-hint); }
+.del-entry-btn { width: 26px; height: 26px; border-radius: 50%; border: 0.5px solid var(--border-med); background: transparent; color: var(--text-hint); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.card[class*="emo-"] .del-entry-btn { border-color: currentColor; opacity: 0.4; color: inherit; }
 
 /* Fields */
 .field { margin-bottom: 12px; }
 .field:last-child { margin-bottom: 0; }
-.field-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
-textarea, input[type=text] { width: 100%; background: var(--bg); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 15px; font-family: inherit; color: var(--text); resize: none; outline: none; line-height: 1.5; }
-textarea:focus, input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,106,245,0.1); }
+.field-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.field-value { font-size: 15px; color: var(--text); line-height: 1.5; }
+textarea, input[type=text], input[type=date] { width: 100%; background: var(--bg); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 15px; font-family: inherit; color: var(--text); resize: none; outline: none; line-height: 1.5; }
+textarea:focus, input[type=text]:focus, input[type=date]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,106,245,0.1); }
 textarea::placeholder, input::placeholder { color: var(--text-hint); }
 
 /* Divider */
-.divider { height: 0.5px; background: var(--border); margin: 14px 0; }
+.divider { height: 0.5px; background: var(--border); margin: 12px 0; }
 
 /* Buttons */
 .btn { display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: none; padding: 12px 16px; }
 .btn:active { transform: scale(0.97); }
 .btn-primary { background: var(--accent); color: #fff; width: 100%; }
 .btn-ghost { background: transparent; border: 0.5px dashed var(--border-med); color: var(--text-sec); width: 100%; }
-.btn-danger-ghost { background: transparent; border: 0.5px solid var(--border); color: var(--danger); font-size: 13px; padding: 8px 12px; }
 .btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-/* Save bar */
-.save-bar { position: sticky; bottom: calc(80px + var(--safe-bottom) + 8px); padding: 12px 16px; background: linear-gradient(to top, var(--bg) 60%, transparent); margin: 0 -16px; }
-
-/* Evening */
+/* Evening chips */
+.chip-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+.chip { padding: 7px 12px; border-radius: 20px; border: 0.5px solid var(--border-med); background: var(--bg); font-size: 13px; font-family: inherit; color: var(--text-sec); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.chip:active { background: var(--accent-light); color: var(--accent-text); border-color: var(--accent); transform: scale(0.96); }
 .evening-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--star-light); border-radius: 20px; padding: 4px 10px; font-size: 12px; color: #c07800; font-weight: 500; margin-bottom: 12px; }
 
+/* Evening history */
+.evening-hist { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+.evening-hist-content { flex: 1; }
+.evening-hist-time { font-size: 11px; color: var(--text-hint); margin-bottom: 3px; }
+.evening-hist-text { font-size: 14px; color: var(--text); line-height: 1.5; }
+.del-small-btn { padding: 4px 8px; border: 0.5px solid var(--border-med); border-radius: 6px; background: transparent; color: var(--text-hint); font-size: 11px; font-family: inherit; cursor: pointer; flex-shrink: 0; }
+
 /* History */
+.segment { display: flex; background: var(--border); border-radius: 9px; padding: 2px; margin-bottom: 16px; gap: 2px; }
+.seg-btn { flex: 1; padding: 7px; border-radius: 7px; border: none; background: transparent; font-size: 13px; font-family: inherit; font-weight: 500; color: var(--text-sec); cursor: pointer; transition: all 0.15s; }
+.seg-btn.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 .history-day { margin-bottom: 20px; }
 .history-day-label { font-size: 12px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; padding: 0 2px; }
 .history-card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); margin-bottom: 8px; overflow: hidden; }
 .history-card-header { display: flex; align-items: center; padding: 12px 14px; gap: 8px; cursor: pointer; }
-.history-card-time { font-size: 12px; color: var(--text-hint); }
+.history-card-time { font-size: 12px; color: var(--text-hint); flex-shrink: 0; }
 .history-card-preview { font-size: 14px; color: var(--text-sec); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .history-card-body { padding: 0 14px 14px; display: none; }
 .history-card-body.open { display: block; }
@@ -97,17 +134,22 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 .history-val { font-size: 14px; color: var(--text); line-height: 1.5; }
 .history-chevron { width: 16px; height: 16px; stroke: var(--text-hint); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; flex-shrink: 0; }
 .history-card-header.open .history-chevron { transform: rotate(180deg); }
+.history-emotion-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-.evening-hist { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 12px 14px; margin-bottom: 8px; }
-.evening-hist-time { font-size: 11px; color: var(--text-hint); margin-bottom: 3px; }
-.evening-hist-text { font-size: 14px; color: var(--text); line-height: 1.5; }
-
-/* Period picker */
+/* Export */
+.export-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-hint); margin-bottom: 8px; }
 .period-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .period-btn { padding: 7px 14px; border-radius: 20px; border: 0.5px solid var(--border-med); background: transparent; font-size: 13px; font-family: inherit; color: var(--text-sec); cursor: pointer; transition: all 0.15s; }
 .period-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-/* Export preview */
+.date-range-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+.date-range-row input[type=date] { flex: 1; font-size: 13px; padding: 8px 10px; }
+.date-range-row span { font-size: 13px; color: var(--text-hint); }
+.checklist { max-height: 220px; overflow-y: auto; border: 0.5px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
+.check-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); cursor: pointer; }
+.check-item:last-child { border-bottom: none; }
+.check-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.check-item-text { flex: 1; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.check-item-meta { font-size: 11px; color: var(--text-hint); flex-shrink: 0; }
 #export-preview { background: #fff; border-radius: var(--radius); border: 0.5px solid var(--border); padding: 20px; margin-top: 12px; }
 .export-header { text-align: center; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #eee; }
 .export-header h2 { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 2px; }
@@ -134,16 +176,10 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 .auth-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
 .auth-sub { font-size: 15px; color: var(--text-sec); line-height: 1.5; margin-bottom: 28px; }
 
-/* Loading */
-.loading { text-align: center; padding: 40px 0; color: var(--text-hint); font-size: 14px; }
+/* Empty */
 .empty { text-align: center; padding: 48px 16px; color: var(--text-hint); }
 .empty-icon { font-size: 36px; margin-bottom: 10px; }
 .empty-text { font-size: 14px; line-height: 1.6; }
-
-/* Segment */
-.segment { display: flex; background: var(--border); border-radius: 9px; padding: 2px; margin-bottom: 16px; gap: 2px; }
-.seg-btn { flex: 1; padding: 7px; border-radius: 7px; border: none; background: transparent; font-size: 13px; font-family: inherit; font-weight: 500; color: var(--text-sec); cursor: pointer; transition: all 0.15s; }
-.seg-btn.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 </style>
 </head>
 <body>
@@ -154,7 +190,7 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
   </div>
   <h1 class="auth-title">КПТ Щоденник</h1>
   <p class="auth-sub">Підключіть Google Drive, щоб ваші записи зберігались і були доступні з будь-якого пристрою.</p>
-  <button class="btn btn-primary" id="sign-in-btn" onclick="signIn()">
+  <button class="btn btn-primary" onclick="signIn()">
     <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
     Увійти через Google
   </button>
@@ -185,8 +221,15 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
       </div>
       <div class="evening-badge">⭐ Сьогодні помітив</div>
       <div class="card">
+        <div class="chip-row">
+          <button class="chip" onclick="insertPrompt('Сьогодні побачив: ')">👁 Побачив</button>
+          <button class="chip" onclick="insertPrompt('Сьогодні зробив: ')">✅ Зробив</button>
+          <button class="chip" onclick="insertPrompt('Здивувало: ')">😮 Здивувало</button>
+          <button class="chip" onclick="insertPrompt('Справило враження: ')">✨ Враження</button>
+          <button class="chip" onclick="insertPrompt('Було прикольно: ')">😄 Прикольно</button>
+        </div>
         <div class="field">
-          <textarea id="evening-input" rows="6" placeholder="Що сьогодні побачив? Що зробив? Що здивувало? Що справило враження? Що було прикольного?"></textarea>
+          <textarea id="evening-input" rows="5" placeholder="Напиши або натисни підказку вище..."></textarea>
         </div>
         <button class="btn btn-primary" onclick="saveEvening()" style="margin-top:10px">
           <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -213,19 +256,32 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
     <!-- EXPORT SCREEN -->
     <div class="screen" id="screen-export">
       <div class="page-header">
-        <div class="page-title">Для терапевта</div>
-        <div class="page-sub">Виберіть період і збережіть картинку</div>
+        <div class="page-title">Звіт</div>
+        <div class="page-sub">Для терапевта</div>
       </div>
       <div class="card">
-        <div class="field-label" style="margin-bottom:8px">Період</div>
+        <div class="export-section-title">Швидкий вибір</div>
         <div class="period-row">
-          <button class="period-btn active" onclick="setPeriod(7, this)">7 днів</button>
-          <button class="period-btn" onclick="setPeriod(14, this)">2 тижні</button>
-          <button class="period-btn" onclick="setPeriod(30, this)">Місяць</button>
+          <button class="period-btn active" onclick="setExportMode('quick',7,this)">7 днів</button>
+          <button class="period-btn" onclick="setExportMode('quick',14,this)">2 тижні</button>
+          <button class="period-btn" onclick="setExportMode('quick',30,this)">Місяць</button>
         </div>
+
+        <div class="divider"></div>
+        <div class="export-section-title">Або вказати дати</div>
+        <div class="date-range-row">
+          <input type="date" id="date-from" onchange="setExportMode('range')">
+          <span>—</span>
+          <input type="date" id="date-to" onchange="setExportMode('range')">
+        </div>
+
+        <div class="divider"></div>
+        <div class="export-section-title">Або вибрати записи вручну</div>
+        <div class="checklist" id="checklist"></div>
+
         <button class="btn btn-primary" onclick="buildExport()">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          Сформувати
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Сформувати картинку
         </button>
       </div>
       <div id="export-area"></div>
@@ -248,7 +304,7 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
       Історія
     </button>
     <button class="nav-btn" onclick="showScreen('export')" id="nav-export">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Звіт
     </button>
   </nav>
@@ -257,90 +313,107 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 <div id="toast"></div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
 const CLIENT_ID = '72456888699-f6nfntvevb9kqjangn2c0kuvase9fdrd.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
 const FILE_NAME = 'cbt-journal-data.json';
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
 let tokenClient = null;
 let accessToken = null;
 let fileId = null;
 let data = { dayEntries: [], eveningEntries: [] };
 let currentHistoryTab = 'day';
+let exportMode = 'quick';
 let exportDays = 7;
-let dayFormEntries = []; // [{id, situation, thought, emotion, alt}]
+let dayFormEntries = [];
+let entryCounter = 0;
+
+// ─── EMOTION COLOR MAP ────────────────────────────────────────────────────────
+const EMOTION_COLORS = {
+  'тривога': 'emo-red', 'страх': 'emo-red', 'злість': 'emo-red', 'гнів': 'emo-red', 'роздратування': 'emo-orange',
+  'смуток': 'emo-blue', 'сум': 'emo-blue', 'депресія': 'emo-blue', 'відчай': 'emo-blue',
+  'радість': 'emo-green', 'щастя': 'emo-green', 'задоволення': 'emo-green', 'спокій': 'emo-green',
+  'сором': 'emo-pink', 'провина': 'emo-pink', 'збентеження': 'emo-pink',
+  'подив': 'emo-purple', 'здивування': 'emo-purple', 'інтерес': 'emo-purple',
+};
+
+function emotionClass(emotion) {
+  if (!emotion) return '';
+  const lower = emotion.toLowerCase().trim();
+  for (const [key, cls] of Object.entries(EMOTION_COLORS)) {
+    if (lower.includes(key)) return cls;
+  }
+  return 'emo-gray';
+}
+
+function emotionEmoji(emotion) {
+  if (!emotion) return '';
+  const lower = emotion.toLowerCase();
+  if (lower.includes('тривог') || lower.includes('страх')) return '😰';
+  if (lower.includes('злість') || lower.includes('гнів')) return '😤';
+  if (lower.includes('роздратування')) return '😠';
+  if (lower.includes('смуток') || lower.includes('сум') || lower.includes('відчай')) return '😢';
+  if (lower.includes('радість') || lower.includes('щастя')) return '😊';
+  if (lower.includes('задоволен')) return '😌';
+  if (lower.includes('сором') || lower.includes('провин')) return '😔';
+  if (lower.includes('подив') || lower.includes('здивування')) return '😮';
+  if (lower.includes('спокій')) return '😶';
+  return '💭';
+}
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 window.onload = () => {
   updateDateLabels();
-  // Load Google Identity Services
+  setDefaultDates();
   const s = document.createElement('script');
   s.src = 'https://accounts.google.com/gsi/client';
   s.onload = initGoogleAuth;
   document.head.appendChild(s);
 };
 
+function setDefaultDates() {
+  const today = new Date();
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  document.getElementById('date-to').value = today.toISOString().split('T')[0];
+  document.getElementById('date-from').value = weekAgo.toISOString().split('T')[0];
+}
+
 function initGoogleAuth() {
-  const savedToken = sessionStorage.getItem('gdr_token');
-  if (savedToken) {
-    accessToken = savedToken;
-    hideAuth();
-    loadData();
-    return;
-  }
+  const saved = sessionStorage.getItem('gdr_token');
+  if (saved) { accessToken = saved; hideAuth(); loadData(); return; }
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
+    client_id: CLIENT_ID, scope: SCOPES,
     callback: (resp) => {
       if (resp.error) { showToast('Помилка входу'); return; }
       accessToken = resp.access_token;
       sessionStorage.setItem('gdr_token', accessToken);
-      hideAuth();
-      loadData();
+      hideAuth(); loadData();
     }
   });
 }
 
-function signIn() {
-  if (tokenClient) tokenClient.requestAccessToken();
-  else showToast('Завантаження...');
-}
+function signIn() { if (tokenClient) tokenClient.requestAccessToken(); else showToast('Завантаження...'); }
 
-function hideAuth() {
-  document.getElementById('auth-overlay').classList.add('hidden');
-  renderEveningHistory();
-}
+function hideAuth() { document.getElementById('auth-overlay').classList.add('hidden'); }
 
 // ─── DATE HELPERS ─────────────────────────────────────────────────────────────
-function formatDate(d) {
-  return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-function formatTime(iso) {
-  const d = new Date(iso);
-  return d.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
-}
+function formatDate(d) { return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }); }
+function formatTime(iso) { return new Date(iso).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }); }
 function formatDateTime(iso) {
   const d = new Date(iso);
   return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
 }
-function formatDayKey(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' });
-}
+function formatDayKey(iso) { return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }); }
 function updateDateLabels() {
-  const today = formatDate(new Date());
-  document.getElementById('day-date-label').textContent = today;
-  document.getElementById('evening-date-label').textContent = today;
+  const t = formatDate(new Date());
+  document.getElementById('day-date-label').textContent = t;
+  document.getElementById('evening-date-label').textContent = t;
 }
 
 // ─── DRIVE ────────────────────────────────────────────────────────────────────
 async function driveRequest(url, options = {}) {
-  const res = await fetch(url, {
-    ...options,
-    headers: { 'Authorization': 'Bearer ' + accessToken, ...(options.headers || {}) }
-  });
-  if (!res.ok) { const e = await res.text(); throw new Error(e); }
+  const res = await fetch(url, { ...options, headers: { 'Authorization': 'Bearer ' + accessToken, ...(options.headers || {}) } });
+  if (!res.ok) throw new Error(await res.text());
   return res;
 }
 
@@ -357,56 +430,40 @@ async function loadData() {
     if (dayFormEntries.length === 0) addDayEntry();
     renderEveningHistory();
     renderHistory();
-  } catch(e) {
-    showToast('Помилка завантаження');
-  }
+    renderChecklist();
+  } catch(e) { showToast('Помилка завантаження'); }
 }
 
 async function saveData() {
   try {
     const body = JSON.stringify(data);
     if (fileId) {
-      await driveRequest(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body
-      });
+      await driveRequest(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body });
     } else {
-      const meta = await driveRequest('https://www.googleapis.com/drive/v3/files', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'] })
-      });
-      const m = await meta.json();
-      fileId = m.id;
-      await driveRequest(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body
-      });
+      const meta = await driveRequest('https://www.googleapis.com/drive/v3/files', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'] }) });
+      const m = await meta.json(); fileId = m.id;
+      await driveRequest(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body });
     }
-  } catch(e) {
-    showToast('Помилка збереження');
-  }
+  } catch(e) { showToast('Помилка збереження'); }
 }
 
 // ─── DAY ENTRIES ──────────────────────────────────────────────────────────────
-let entryCounter = 0;
-
 function addDayEntry() {
   const id = 'entry-' + (++entryCounter);
   dayFormEntries.push({ id });
   renderDayForms();
-  setTimeout(() => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  setTimeout(() => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
 }
 
 function renderDayForms() {
   const c = document.getElementById('day-entries-container');
   c.innerHTML = dayFormEntries.map((e, i) => `
     <div class="card" id="${e.id}">
-      <div class="card-header">
-        <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <span class="card-title">Запис ${dayFormEntries.length > 1 ? i+1 : ''}</span>
-        <span class="card-time" id="${e.id}-time"></span>
-        ${dayFormEntries.length > 1 ? `<button class="btn btn-danger-ghost" onclick="removeDayEntry('${e.id}')" style="padding:4px 8px; margin-left:4px">✕</button>` : ''}
+      <div class="entry-hdr">
+        <div class="entry-hdr-left">
+          <span class="card-time-small" id="${e.id}-time"></span>
+        </div>
+        ${dayFormEntries.length > 1 ? `<button class="del-entry-btn" onclick="removeDayEntry('${e.id}')">✕</button>` : ''}
       </div>
       <div class="field"><div class="field-label">Ситуація</div><textarea rows="2" id="${e.id}-sit" placeholder="Що сталось?"></textarea></div>
       <div class="field"><div class="field-label">Думка</div><textarea rows="2" id="${e.id}-th" placeholder="Що подумав?"></textarea></div>
@@ -419,17 +476,13 @@ function renderDayForms() {
       </button>
     </div>
   `).join('');
-  // set live time
   dayFormEntries.forEach(e => {
     const el = document.getElementById(e.id + '-time');
     if (el) el.textContent = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
   });
 }
 
-function removeDayEntry(id) {
-  dayFormEntries = dayFormEntries.filter(e => e.id !== id);
-  renderDayForms();
-}
+function removeDayEntry(id) { dayFormEntries = dayFormEntries.filter(e => e.id !== id); renderDayForms(); }
 
 async function saveDayEntry(id) {
   const sit = document.getElementById(id + '-sit').value.trim();
@@ -440,14 +493,30 @@ async function saveDayEntry(id) {
   const entry = { id: Date.now() + Math.random(), ts: new Date().toISOString(), situation: sit, thought: th, emotion: em, altThought: alt };
   data.dayEntries.unshift(entry);
   dayFormEntries = dayFormEntries.filter(e => e.id !== id);
-  if (dayFormEntries.length === 0) addDayEntry();
-  else renderDayForms();
+  if (dayFormEntries.length === 0) addDayEntry(); else renderDayForms();
   showToast('Збережено ✓');
   await saveData();
   renderHistory();
+  renderChecklist();
+}
+
+async function deleteDayEntry(entryId) {
+  data.dayEntries = data.dayEntries.filter(e => String(e.id) !== String(entryId));
+  await saveData();
+  renderHistory();
+  renderChecklist();
+  showToast('Запис видалено');
 }
 
 // ─── EVENING ──────────────────────────────────────────────────────────────────
+function insertPrompt(text) {
+  const ta = document.getElementById('evening-input');
+  const val = ta.value;
+  const needsNewline = val.length > 0 && !val.endsWith('\n');
+  ta.value = val + (needsNewline ? '\n' : '') + text;
+  ta.focus();
+}
+
 async function saveEvening() {
   const text = document.getElementById('evening-input').value.trim();
   if (!text) { showToast('Напишіть щось спочатку'); return; }
@@ -460,15 +529,26 @@ async function saveEvening() {
   renderHistory();
 }
 
+async function deleteEveningEntry(entryId) {
+  data.eveningEntries = data.eveningEntries.filter(e => String(e.id) !== String(entryId));
+  await saveData();
+  renderEveningHistory();
+  renderHistory();
+  showToast('Запис видалено');
+}
+
 function renderEveningHistory() {
   const c = document.getElementById('evening-history-container');
-  const entries = (data.eveningEntries || []).slice(0, 20);
+  const entries = (data.eveningEntries || []).slice(0, 30);
   if (!entries.length) { c.innerHTML = ''; return; }
-  c.innerHTML = '<div style="height:8px"></div><div class="field-label" style="margin-bottom:8px">Попередні записи</div>' +
+  c.innerHTML = '<div style="height:4px"></div><div class="history-day-label" style="padding:0 2px;margin-bottom:8px">Попередні записи</div>' +
     entries.map(e => `
       <div class="evening-hist">
-        <div class="evening-hist-time">${formatDateTime(e.ts)}</div>
-        <div class="evening-hist-text">${escHtml(e.text)}</div>
+        <div class="evening-hist-content">
+          <div class="evening-hist-time">${formatDateTime(e.ts)}</div>
+          <div class="evening-hist-text">${escHtml(e.text)}</div>
+        </div>
+        <button class="del-small-btn" onclick="deleteEveningEntry('${e.id}')">видалити</button>
       </div>
     `).join('');
 }
@@ -476,9 +556,7 @@ function renderEveningHistory() {
 // ─── HISTORY ──────────────────────────────────────────────────────────────────
 function setHistoryTab(tab) {
   currentHistoryTab = tab;
-  document.querySelectorAll('.seg-btn').forEach((b, i) => {
-    b.classList.toggle('active', (tab === 'day' && i === 0) || (tab === 'evening' && i === 1));
-  });
+  document.querySelectorAll('.seg-btn').forEach((b, i) => b.classList.toggle('active', (tab === 'day' && i === 0) || (tab === 'evening' && i === 1)));
   renderHistory();
 }
 
@@ -487,21 +565,21 @@ function renderHistory() {
   if (currentHistoryTab === 'day') {
     const entries = data.dayEntries || [];
     if (!entries.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Ще немає записів.<br>Додайте перший запис у вкладці "Вдень".</div></div>'; return; }
-    // Group by day
     const groups = {};
-    entries.forEach(e => {
-      const key = formatDayKey(e.ts);
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(e);
-    });
+    entries.forEach(e => { const key = formatDayKey(e.ts); if (!groups[key]) groups[key] = []; groups[key].push(e); });
     c.innerHTML = Object.entries(groups).map(([day, items]) => `
       <div class="history-day">
         <div class="history-day-label">${day}</div>
-        ${items.map(e => `
+        ${items.map(e => {
+          const emoClass = emotionClass(e.emotion);
+          const dotColor = emoClass === 'emo-red' ? '#D85A30' : emoClass === 'emo-orange' ? '#BA7517' : emoClass === 'emo-blue' ? '#378ADD' : emoClass === 'emo-green' ? '#639922' : emoClass === 'emo-purple' ? '#534AB7' : emoClass === 'emo-pink' ? '#D4537E' : '#888';
+          return `
           <div class="history-card">
             <div class="history-card-header" onclick="toggleHistCard(this)">
               <span class="history-card-time">${formatTime(e.ts)}</span>
+              ${e.emotion ? `<div class="history-emotion-dot" style="background:${dotColor}"></div>` : ''}
               <span class="history-card-preview">${escHtml(e.situation || e.thought || '—')}</span>
+              <button class="del-small-btn" onclick="event.stopPropagation();deleteDayEntry('${e.id}')">видалити</button>
               <svg class="history-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
             <div class="history-card-body">
@@ -510,8 +588,8 @@ function renderHistory() {
               ${e.emotion ? `<div class="history-row"><div class="history-tag">Емоція</div><div class="history-val">${escHtml(e.emotion)}</div></div>` : ''}
               ${e.altThought ? `<div class="history-row"><div class="history-tag">Альтернативна думка</div><div class="history-val">${escHtml(e.altThought)}</div></div>` : ''}
             </div>
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('')}
       </div>
     `).join('');
   } else {
@@ -519,8 +597,11 @@ function renderHistory() {
     if (!entries.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">⭐</div><div class="empty-text">Ще немає вечірніх записів.</div></div>'; return; }
     c.innerHTML = entries.map(e => `
       <div class="evening-hist">
-        <div class="evening-hist-time">${formatDateTime(e.ts)}</div>
-        <div class="evening-hist-text">${escHtml(e.text)}</div>
+        <div class="evening-hist-content">
+          <div class="evening-hist-time">${formatDateTime(e.ts)}</div>
+          <div class="evening-hist-text">${escHtml(e.text)}</div>
+        </div>
+        <button class="del-small-btn" onclick="deleteEveningEntry('${e.id}')">видалити</button>
       </div>
     `).join('');
   }
@@ -533,77 +614,101 @@ function toggleHistCard(header) {
 }
 
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
-function setPeriod(days, btn) {
-  exportDays = days;
-  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function setExportMode(mode, days, btn) {
+  exportMode = mode;
+  if (mode === 'quick') {
+    exportDays = days;
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  }
+}
+
+function renderChecklist() {
+  const c = document.getElementById('checklist');
+  if (!c) return;
+  const all = [...(data.dayEntries || [])].map(e => ({ ...e, type: 'day' }))
+    .concat([...(data.eveningEntries || [])].map(e => ({ ...e, type: 'evening' })))
+    .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+  if (!all.length) { c.innerHTML = '<div style="padding:12px;font-size:13px;color:var(--text-hint);text-align:center">Немає записів</div>'; return; }
+  c.innerHTML = all.map(e => `
+    <label class="check-item">
+      <input type="checkbox" value="${e.id}" data-type="${e.type}">
+      <span class="check-item-text">${e.type === 'evening' ? '⭐ ' : ''}${escHtml(e.situation || e.thought || e.text || '—')}</span>
+      <span class="check-item-meta">${formatDateTime(e.ts)}</span>
+    </label>
+  `).join('');
 }
 
 function buildExport() {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - exportDays);
-  const dayEntries = (data.dayEntries || []).filter(e => new Date(e.ts) >= cutoff);
-  const eveningEntries = (data.eveningEntries || []).filter(e => new Date(e.ts) >= cutoff);
+  let dayEntries = [], eveningEntries = [];
 
-  if (!dayEntries.length && !eveningEntries.length) {
-    showToast('За цей період немає записів');
-    return;
+  if (exportMode === 'quick') {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - exportDays);
+    dayEntries = (data.dayEntries || []).filter(e => new Date(e.ts) >= cutoff);
+    eveningEntries = (data.eveningEntries || []).filter(e => new Date(e.ts) >= cutoff);
+  } else if (exportMode === 'range') {
+    const from = new Date(document.getElementById('date-from').value);
+    const to = new Date(document.getElementById('date-to').value); to.setHours(23,59,59);
+    dayEntries = (data.dayEntries || []).filter(e => { const d = new Date(e.ts); return d >= from && d <= to; });
+    eveningEntries = (data.eveningEntries || []).filter(e => { const d = new Date(e.ts); return d >= from && d <= to; });
+  } else {
+    const checked = [...document.querySelectorAll('#checklist input[type=checkbox]:checked')];
+    checked.forEach(cb => {
+      if (cb.dataset.type === 'day') {
+        const e = data.dayEntries.find(x => String(x.id) === cb.value);
+        if (e) dayEntries.push(e);
+      } else {
+        const e = data.eveningEntries.find(x => String(x.id) === cb.value);
+        if (e) eveningEntries.push(e);
+      }
+    });
   }
 
-  const from = cutoff.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' });
-  const to = new Date().toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' });
+  if (!dayEntries.length && !eveningEntries.length) { showToast('Немає записів для звіту'); return; }
+
+  const periodLabel = exportMode === 'quick'
+    ? `Останні ${exportDays} днів`
+    : exportMode === 'range'
+    ? `${document.getElementById('date-from').value} — ${document.getElementById('date-to').value}`
+    : 'Вибрані записи';
 
   const dayHtml = dayEntries.map(e => `
     <div class="export-entry">
-      <div class="export-meta">
-        <span class="export-type-badge">Денний</span>
-        <span class="export-time-str">${formatDateTime(e.ts)}</span>
-      </div>
+      <div class="export-meta"><span class="export-type-badge">Денний</span><span class="export-time-str">${formatDateTime(e.ts)}</span></div>
       ${e.situation ? `<div class="export-field"><div class="export-field-label">Ситуація</div><div class="export-field-val">${escHtml(e.situation)}</div></div>` : ''}
       ${e.thought ? `<div class="export-field"><div class="export-field-label">Думка</div><div class="export-field-val">${escHtml(e.thought)}</div></div>` : ''}
       ${e.emotion ? `<div class="export-field"><div class="export-field-label">Емоція</div><div class="export-field-val">${escHtml(e.emotion)}</div></div>` : ''}
       ${e.altThought ? `<div class="export-field"><div class="export-field-label">Альтернативна думка</div><div class="export-field-val">${escHtml(e.altThought)}</div></div>` : ''}
-    </div>
-  `).join('');
+    </div>`).join('');
 
   const evenHtml = eveningEntries.map(e => `
     <div class="export-entry">
-      <div class="export-meta">
-        <span class="export-type-badge evening">⭐ Вечірній</span>
-        <span class="export-time-str">${formatDateTime(e.ts)}</span>
-      </div>
+      <div class="export-meta"><span class="export-type-badge evening">⭐ Вечірній</span><span class="export-time-str">${formatDateTime(e.ts)}</span></div>
       <div class="export-field"><div class="export-field-val">${escHtml(e.text)}</div></div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
   document.getElementById('export-area').innerHTML = `
     <div id="export-preview">
-      <div class="export-header">
-        <h2>КПТ Щоденник</h2>
-        <p>${from} — ${to}</p>
-      </div>
+      <div class="export-header"><h2>КПТ Щоденник</h2><p>${periodLabel}</p></div>
       ${dayHtml}${evenHtml}
     </div>
     <button class="btn btn-primary" onclick="saveAsImage()" style="margin-top:12px">
-      <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Зберегти картинку
-    </button>
-  `;
+    </button>`;
   document.getElementById('export-area').scrollIntoView({ behavior: 'smooth' });
 }
 
 function saveAsImage() {
   const el = document.getElementById('export-preview');
   if (!el) return;
-  // Load html2canvas from CDN
-  if (typeof html2canvas !== 'undefined') {
-    doCapture(el);
-  } else {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s.onload = () => doCapture(el);
-    document.head.appendChild(s);
-  }
+  if (typeof html2canvas !== 'undefined') { doCapture(el); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  s.onload = () => doCapture(el);
+  document.head.appendChild(s);
 }
 
 function doCapture(el) {
@@ -617,7 +722,7 @@ function doCapture(el) {
   });
 }
 
-// ─── NAV & SCREENS ────────────────────────────────────────────────────────────
+// ─── NAV ──────────────────────────────────────────────────────────────────────
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -625,6 +730,7 @@ function showScreen(name) {
   document.getElementById('nav-' + name).classList.add('active');
   document.getElementById('content').scrollTop = 0;
   if (name === 'history') renderHistory();
+  if (name === 'export') renderChecklist();
 }
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
