@@ -115,6 +115,8 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 .evening-hist-time { font-size: 11px; color: var(--text-hint); margin-bottom: 3px; }
 .evening-hist-text { font-size: 14px; color: var(--text); line-height: 1.5; }
 .del-small-btn { padding: 4px 8px; border: 0.5px solid var(--border-med); border-radius: 6px; background: transparent; color: var(--text-hint); font-size: 11px; font-family: inherit; cursor: pointer; flex-shrink: 0; }
+.del-icon-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; font-size: 15px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.del-icon-btn:hover { background: #fff0f0; }
 
 /* History */
 .segment { display: flex; background: var(--border); border-radius: 9px; padding: 2px; margin-bottom: 16px; gap: 2px; }
@@ -329,11 +331,12 @@ let entryCounter = 0;
 
 // ─── EMOTION COLOR MAP ────────────────────────────────────────────────────────
 const EMOTION_COLORS = {
-  'тривога': 'emo-red', 'страх': 'emo-red', 'злість': 'emo-red', 'гнів': 'emo-red', 'роздратування': 'emo-orange',
-  'смуток': 'emo-blue', 'сум': 'emo-blue', 'депресія': 'emo-blue', 'відчай': 'emo-blue',
-  'радість': 'emo-green', 'щастя': 'emo-green', 'задоволення': 'emo-green', 'спокій': 'emo-green',
-  'сором': 'emo-pink', 'провина': 'emo-pink', 'збентеження': 'emo-pink',
-  'подив': 'emo-purple', 'здивування': 'emo-purple', 'інтерес': 'emo-purple',
+  'тривога': 'emo-red', 'страх': 'emo-red', 'злість': 'emo-red', 'гнів': 'emo-red', 'лють': 'emo-red', 'паніка': 'emo-red',
+  'роздратування': 'emo-orange', 'дратівливість': 'emo-orange', 'напруга': 'emo-orange', 'стрес': 'emo-orange',
+  'смуток': 'emo-blue', 'сум': 'emo-blue', 'горе': 'emo-blue', 'депресія': 'emo-blue', 'відчай': 'emo-blue', 'туга': 'emo-blue', 'нудьга': 'emo-blue', 'самотність': 'emo-blue',
+  'радість': 'emo-green', 'щастя': 'emo-green', 'задоволення': 'emo-green', 'спокій': 'emo-green', 'вдячність': 'emo-green', 'гордість': 'emo-green', 'надія': 'emo-green',
+  'сором': 'emo-pink', 'провина': 'emo-pink', 'збентеження': 'emo-pink', 'ніяковість': 'emo-pink',
+  'подив': 'emo-purple', 'здивування': 'emo-purple', 'інтерес': 'emo-purple', 'захоплення': 'emo-purple', 'цікавість': 'emo-purple',
 };
 
 function emotionClass(emotion) {
@@ -548,7 +551,7 @@ function renderEveningHistory() {
           <div class="evening-hist-time">${formatDateTime(e.ts)}</div>
           <div class="evening-hist-text">${escHtml(e.text)}</div>
         </div>
-        <button class="del-small-btn" onclick="deleteEveningEntry('${e.id}')">видалити</button>
+        <button class="del-icon-btn" onclick="deleteEveningEntry('${e.id}')" title="Видалити">🗑</button>
       </div>
     `).join('');
 }
@@ -574,16 +577,15 @@ function renderHistory() {
           const emoClass = emotionClass(e.emotion);
           const dotColor = emoClass === 'emo-red' ? '#D85A30' : emoClass === 'emo-orange' ? '#BA7517' : emoClass === 'emo-blue' ? '#378ADD' : emoClass === 'emo-green' ? '#639922' : emoClass === 'emo-purple' ? '#534AB7' : emoClass === 'emo-pink' ? '#D4537E' : '#888';
           return `
-          <div class="history-card">
+          <div class="history-card" style="${emoClass ? 'background:' + (emoClass==='emo-red'?'#FAECE7':emoClass==='emo-orange'?'#FAEEDA':emoClass==='emo-blue'?'#E6F1FB':emoClass==='emo-green'?'#EAF3DE':emoClass==='emo-purple'?'#EEEDFE':emoClass==='emo-pink'?'#FBEAF0':'#F1EFE8') + ';border-color:' + (emoClass==='emo-red'?'#F5C4B3':emoClass==='emo-orange'?'#FAC775':emoClass==='emo-blue'?'#B5D4F4':emoClass==='emo-green'?'#C0DD97':emoClass==='emo-purple'?'#CECBF6':emoClass==='emo-pink'?'#F4C0D1':'#D3D1C7') : ''}">
             <div class="history-card-header" onclick="toggleHistCard(this)">
               <span class="history-card-time">${formatTime(e.ts)}</span>
               ${e.emotion ? `<div class="history-emotion-dot" style="background:${dotColor}"></div>` : ''}
               <span class="history-card-preview">${escHtml(e.situation || e.thought || '—')}</span>
-              <button class="del-small-btn" onclick="event.stopPropagation();deleteDayEntry('${e.id}')">видалити</button>
+              <button class="del-icon-btn" onclick="event.stopPropagation();deleteDayEntry('${e.id}')" title="Видалити">🗑</button>
               <svg class="history-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
             <div class="history-card-body">
-              ${e.situation ? `<div class="history-row"><div class="history-tag">Ситуація</div><div class="history-val">${escHtml(e.situation)}</div></div>` : ''}
               ${e.thought ? `<div class="history-row"><div class="history-tag">Думка</div><div class="history-val">${escHtml(e.thought)}</div></div>` : ''}
               ${e.emotion ? `<div class="history-row"><div class="history-tag">Емоція</div><div class="history-val">${escHtml(e.emotion)}</div></div>` : ''}
               ${e.altThought ? `<div class="history-row"><div class="history-tag">Альтернативна думка</div><div class="history-val">${escHtml(e.altThought)}</div></div>` : ''}
@@ -601,7 +603,7 @@ function renderHistory() {
           <div class="evening-hist-time">${formatDateTime(e.ts)}</div>
           <div class="evening-hist-text">${escHtml(e.text)}</div>
         </div>
-        <button class="del-small-btn" onclick="deleteEveningEntry('${e.id}')">видалити</button>
+        <button class="del-icon-btn" onclick="deleteEveningEntry('${e.id}')" title="Видалити">🗑</button>
       </div>
     `).join('');
   }
