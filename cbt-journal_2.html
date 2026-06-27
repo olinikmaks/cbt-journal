@@ -334,6 +334,7 @@ let exportMode = 'quick';
 let exportDays = 7;
 let dayFormEntries = [];
 let entryCounter = 0;
+let dataLoaded = false;
 
 const EMOTION_COLORS = {
   'trypoga': 'emo-red', 'strakh': 'emo-red'
@@ -440,17 +441,31 @@ async function loadData() {
     if (file) {
       fileId = file.id;
       var content = await driveRequest('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media');
-      data = await content.json();
+      var loaded = await content.json();
+      if (loaded && typeof loaded === 'object') {
+        data = { dayEntries: loaded.dayEntries || [], eveningEntries: loaded.eveningEntries || [] };
+      }
     }
+    dataLoaded = true;
+    try { localStorage.setItem('cbt_backup', JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {}
     if (dayFormEntries.length === 0) addDayEntry();
     renderEveningHistory();
     renderHistory();
     renderChecklist();
-  } catch(e) { showToast('Помилка завантаження'); }
+  } catch(e) {
+    showToast('Помилка завантаження');
+    // restore from local backup if Drive failed
+    try {
+      var b = localStorage.getItem('cbt_backup');
+      if (b) { var parsed = JSON.parse(b); if (parsed && parsed.data) { data = parsed.data; renderEveningHistory(); renderHistory(); renderChecklist(); } }
+    } catch(e2) {}
+  }
 }
 
 async function saveData() {
+  if (!dataLoaded) { showToast('Зачекайте, дані ще завантажуються'); return; }
   try {
+    try { localStorage.setItem('cbt_backup', JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {}
     var body = JSON.stringify(data);
     if (fileId) {
       await driveRequest('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body });
