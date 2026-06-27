@@ -118,6 +118,12 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 .del-icon-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; font-size: 15px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
 .del-icon-btn:hover { background: #fff0f0; }
 
+.confirm-delete { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#fff0f0; border-top:0.5px solid #f5c4b3; }
+.confirm-text { font-size:12px; color:#c0392b; flex:1; }
+.confirm-yes { padding:4px 10px; border-radius:6px; border:none; background:#e84040; color:#fff; font-size:12px; font-family:inherit; cursor:pointer; }
+.confirm-no { padding:4px 10px; border-radius:6px; border:0.5px solid var(--border-med); background:transparent; color:var(--text-sec); font-size:12px; font-family:inherit; cursor:pointer; }
+
+
 /* History */
 .segment { display: flex; background: var(--border); border-radius: 9px; padding: 2px; margin-bottom: 16px; gap: 2px; }
 .seg-btn { flex: 1; padding: 7px; border-radius: 7px; border: none; background: transparent; font-size: 13px; font-family: inherit; font-weight: 500; color: var(--text-sec); cursor: pointer; transition: all 0.15s; }
@@ -329,64 +335,72 @@ let exportDays = 7;
 let dayFormEntries = [];
 let entryCounter = 0;
 
-// ─── EMOTION COLOR MAP ────────────────────────────────────────────────────────
 const EMOTION_COLORS = {
-  'тривога': 'emo-red', 'страх': 'emo-red', 'злість': 'emo-red', 'гнів': 'emo-red', 'лють': 'emo-red', 'паніка': 'emo-red',
-  'роздратування': 'emo-orange', 'дратівливість': 'emo-orange', 'напруга': 'emo-orange', 'стрес': 'emo-orange',
-  'смуток': 'emo-blue', 'сум': 'emo-blue', 'горе': 'emo-blue', 'депресія': 'emo-blue', 'відчай': 'emo-blue', 'туга': 'emo-blue', 'нудьга': 'emo-blue', 'самотність': 'emo-blue',
-  'радість': 'emo-green', 'щастя': 'emo-green', 'задоволення': 'emo-green', 'спокій': 'emo-green', 'вдячність': 'emo-green', 'гордість': 'emo-green', 'надія': 'emo-green',
-  'сором': 'emo-pink', 'провина': 'emo-pink', 'збентеження': 'emo-pink', 'ніяковість': 'emo-pink',
-  'подив': 'emo-purple', 'здивування': 'emo-purple', 'інтерес': 'emo-purple', 'захоплення': 'emo-purple', 'цікавість': 'emo-purple',
+  'trypoga': 'emo-red', 'strakh': 'emo-red'
 };
 
+const EMO_BG = {'emo-red':'#FAECE7','emo-orange':'#FAEEDA','emo-blue':'#E6F1FB','emo-green':'#EAF3DE','emo-purple':'#EEEDFE','emo-pink':'#FBEAF0','emo-gray':'#F1EFE8'};
+const EMO_BR = {'emo-red':'#F5C4B3','emo-orange':'#FAC775','emo-blue':'#B5D4F4','emo-green':'#C0DD97','emo-purple':'#CECBF6','emo-pink':'#F4C0D1','emo-gray':'#D3D1C7'};
+const EMO_TX = {'emo-red':'#4A1B0C','emo-orange':'#412402','emo-blue':'#042C53','emo-green':'#173404','emo-purple':'#26215C','emo-pink':'#4B1528','emo-gray':'#2C2C2A'};
+const EMO_DOT = {'emo-red':'#D85A30','emo-orange':'#BA7517','emo-blue':'#378ADD','emo-green':'#639922','emo-purple':'#534AB7','emo-pink':'#D4537E','emo-gray':'#888'};
+
+const EMOTION_MAP = [
+  [['trypoga','strakh','zlist','hniv','lyut','panika'], 'emo-red'],
+  [['rozdratuvannya','dratyvlyvist','napruga','stres'], 'emo-orange'],
+  [['smutok','sum','gore','depresiya','vichay','tuga','nudga','samotnis'], 'emo-blue'],
+  [['radist','shchastya','zadovolen','spokiy','vyachnist','gordist','nadiya'], 'emo-green'],
+  [['sorom','provyna','zbentezhen','niyakovist'], 'emo-pink'],
+  [['podуv','zdyvuvannya','interes','zakhoplennya','tsikavit'], 'emo-purple']
+];
+
 function emotionClass(emotion) {
-  if (!emotion) return '';
-  const lower = emotion.toLowerCase().trim();
-  for (const [key, cls] of Object.entries(EMOTION_COLORS)) {
-    if (lower.includes(key)) return cls;
+  if (!emotion) return 'emo-gray';
+  const lower = emotion.toLowerCase();
+  const translit = {
+    '\u0442\u0440\u0438\u0432\u043e\u0433': 'trypog', '\u0441\u0442\u0440\u0430\u0445': 'strakh', '\u0437\u043b\u0456\u0441\u0442': 'zlist', '\u0433\u043d\u0456\u0432': 'hniv', '\u043b\u044e\u0442': 'lyut', '\u043f\u0430\u043d\u0456\u043a': 'panika',
+    '\u0440\u043e\u0437\u0434\u0440\u0430\u0442': 'rozdrat', '\u0434\u0440\u0430\u0442': 'drat', '\u043d\u0430\u043f\u0440\u0443\u0433': 'naprug', '\u0441\u0442\u0440\u0435\u0441': 'stres',
+    '\u0441\u043c\u0443\u0442\u043e\u043a': 'smutok', '\u0441\u0443\u043c': 'sum', '\u0433\u043e\u0440\u0435': 'gore', '\u0434\u0435\u043f\u0440\u0435\u0441': 'depres', '\u0432\u0456\u0434\u0447\u0430\u0439': 'vichay', '\u0442\u0443\u0433': 'tuga', '\u043d\u0443\u0434\u044c\u0433': 'nudg', '\u0441\u0430\u043c\u043e\u0442': 'samot',
+    '\u0440\u0430\u0434\u0456\u0441\u0442': 'radist', '\u0449\u0430\u0441\u0442': 'shchast', '\u0437\u0430\u0434\u043e\u0432\u043e\u043b': 'zadovol', '\u0441\u043f\u043e\u043a\u0456\u0439': 'spokiy', '\u0432\u0434\u044f\u0447': 'vdyach', '\u0433\u043e\u0440\u0434': 'gord', '\u043d\u0430\u0434\u0456\u044f': 'nadiya',
+    '\u0441\u043e\u0440\u043e\u043c': 'sorom', '\u043f\u0440\u043e\u0432\u0438\u043d': 'provyn', '\u0437\u0431\u0435\u043d\u0442\u0435\u0436': 'zbentezh', '\u043d\u0456\u044f\u043a\u043e\u0432': 'niyakov',
+    '\u043f\u043e\u0434\u0438\u0432': 'podуv', '\u0437\u0434\u0438\u0432': 'zdyv', '\u0456\u043d\u0442\u0435\u0440\u0435\u0441': 'interes', '\u0437\u0430\u0445\u043e\u043f': 'zakhop', '\u0446\u0456\u043a\u0430\u0432': 'tsikav'
+  };
+  const emoToClass = {
+    'trypog': 'emo-red', 'strakh': 'emo-red', 'zlist': 'emo-red', 'hniv': 'emo-red', 'lyut': 'emo-red', 'panika': 'emo-red',
+    'rozdrat': 'emo-orange', 'drat': 'emo-orange', 'naprug': 'emo-orange', 'stres': 'emo-orange',
+    'smutok': 'emo-blue', 'sum': 'emo-blue', 'gore': 'emo-blue', 'depres': 'emo-blue', 'vichay': 'emo-blue', 'tuga': 'emo-blue', 'nudg': 'emo-blue', 'samot': 'emo-blue',
+    'radist': 'emo-green', 'shchast': 'emo-green', 'zadovol': 'emo-green', 'spokiy': 'emo-green', 'vdyach': 'emo-green', 'gord': 'emo-green', 'nadiya': 'emo-green',
+    'sorom': 'emo-pink', 'provyn': 'emo-pink', 'zbentezh': 'emo-pink', 'niyakov': 'emo-pink',
+    'podуv': 'emo-purple', 'zdyv': 'emo-purple', 'interes': 'emo-purple', 'zakhop': 'emo-purple', 'tsikav': 'emo-purple'
+  };
+  for (const [uk, tr] of Object.entries(translit)) {
+    if (lower.includes(uk)) return emoToClass[tr] || 'emo-gray';
   }
   return 'emo-gray';
 }
 
-function emotionEmoji(emotion) {
-  if (!emotion) return '';
-  const lower = emotion.toLowerCase();
-  if (lower.includes('тривог') || lower.includes('страх')) return '😰';
-  if (lower.includes('злість') || lower.includes('гнів')) return '😤';
-  if (lower.includes('роздратування')) return '😠';
-  if (lower.includes('смуток') || lower.includes('сум') || lower.includes('відчай')) return '😢';
-  if (lower.includes('радість') || lower.includes('щастя')) return '😊';
-  if (lower.includes('задоволен')) return '😌';
-  if (lower.includes('сором') || lower.includes('провин')) return '😔';
-  if (lower.includes('подив') || lower.includes('здивування')) return '😮';
-  if (lower.includes('спокій')) return '😶';
-  return '💭';
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-window.onload = () => {
+window.onload = function() {
   updateDateLabels();
   setDefaultDates();
-  const s = document.createElement('script');
+  var s = document.createElement('script');
   s.src = 'https://accounts.google.com/gsi/client';
   s.onload = initGoogleAuth;
   document.head.appendChild(s);
 };
 
 function setDefaultDates() {
-  const today = new Date();
-  const weekAgo = new Date();
+  var today = new Date();
+  var weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
   document.getElementById('date-to').value = today.toISOString().split('T')[0];
   document.getElementById('date-from').value = weekAgo.toISOString().split('T')[0];
 }
 
 function initGoogleAuth() {
-  const saved = sessionStorage.getItem('gdr_token');
+  var saved = sessionStorage.getItem('gdr_token');
   if (saved) { accessToken = saved; hideAuth(); loadData(); return; }
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID, scope: SCOPES,
-    callback: (resp) => {
+    callback: function(resp) {
       if (resp.error) { showToast('Помилка входу'); return; }
       accessToken = resp.access_token;
       sessionStorage.setItem('gdr_token', accessToken);
@@ -396,38 +410,36 @@ function initGoogleAuth() {
 }
 
 function signIn() { if (tokenClient) tokenClient.requestAccessToken(); else showToast('Завантаження...'); }
-
 function hideAuth() { document.getElementById('auth-overlay').classList.add('hidden'); }
 
-// ─── DATE HELPERS ─────────────────────────────────────────────────────────────
 function formatDate(d) { return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }); }
 function formatTime(iso) { return new Date(iso).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }); }
 function formatDateTime(iso) {
-  const d = new Date(iso);
+  var d = new Date(iso);
   return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
 }
 function formatDayKey(iso) { return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }); }
 function updateDateLabels() {
-  const t = formatDate(new Date());
+  var t = formatDate(new Date());
   document.getElementById('day-date-label').textContent = t;
   document.getElementById('evening-date-label').textContent = t;
 }
 
-// ─── DRIVE ────────────────────────────────────────────────────────────────────
-async function driveRequest(url, options = {}) {
-  const res = await fetch(url, { ...options, headers: { 'Authorization': 'Bearer ' + accessToken, ...(options.headers || {}) } });
+async function driveRequest(url, options) {
+  options = options || {};
+  var res = await fetch(url, Object.assign({}, options, { headers: Object.assign({ 'Authorization': 'Bearer ' + accessToken }, options.headers || {}) }));
   if (!res.ok) throw new Error(await res.text());
   return res;
 }
 
 async function loadData() {
   try {
-    const res = await driveRequest('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)');
-    const json = await res.json();
-    const file = json.files.find(f => f.name === FILE_NAME);
+    var res = await driveRequest('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)');
+    var json = await res.json();
+    var file = json.files.find(function(f) { return f.name === FILE_NAME; });
     if (file) {
       fileId = file.id;
-      const content = await driveRequest(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
+      var content = await driveRequest('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media');
       data = await content.json();
     }
     if (dayFormEntries.length === 0) addDayEntry();
@@ -439,101 +451,101 @@ async function loadData() {
 
 async function saveData() {
   try {
-    const body = JSON.stringify(data);
+    var body = JSON.stringify(data);
     if (fileId) {
-      await driveRequest(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body });
+      await driveRequest('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body });
     } else {
-      const meta = await driveRequest('https://www.googleapis.com/drive/v3/files', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'] }) });
-      const m = await meta.json(); fileId = m.id;
-      await driveRequest(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body });
+      var meta = await driveRequest('https://www.googleapis.com/drive/v3/files', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'] }) });
+      var m = await meta.json(); fileId = m.id;
+      await driveRequest('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body });
     }
   } catch(e) { showToast('Помилка збереження'); }
 }
 
-// ─── DAY ENTRIES ──────────────────────────────────────────────────────────────
 function addDayEntry() {
-  const id = 'entry-' + (++entryCounter);
-  dayFormEntries.push({ id });
+  var id = 'entry-' + (++entryCounter);
+  dayFormEntries.push({ id: id });
   renderDayForms();
-  setTimeout(() => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+  setTimeout(function() { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
 }
 
 function renderDayForms() {
-  const c = document.getElementById('day-entries-container');
-  c.innerHTML = dayFormEntries.map((e, i) => `
-    <div class="card" id="${e.id}">
-      <div class="entry-hdr">
-        <div class="entry-hdr-left">
-          <span class="card-time-small" id="${e.id}-time"></span>
-        </div>
-        ${dayFormEntries.length > 1 ? `<button class="del-entry-btn" onclick="removeDayEntry('${e.id}')">✕</button>` : ''}
-      </div>
-      <div class="field"><div class="field-label">Ситуація</div><textarea rows="2" id="${e.id}-sit" placeholder="Що сталось?"></textarea></div>
-      <div class="field"><div class="field-label">Думка</div><textarea rows="2" id="${e.id}-th" placeholder="Що подумав?"></textarea></div>
-      <div class="field"><div class="field-label">Емоція</div><textarea rows="1" id="${e.id}-em" placeholder="Що відчув?"></textarea></div>
-      <div class="divider"></div>
-      <div class="field"><div class="field-label">Альтернативна думка</div><textarea rows="2" id="${e.id}-alt" placeholder="Як ще можна подивитись на це?"></textarea></div>
-      <button class="btn btn-primary" onclick="saveDayEntry('${e.id}')" style="margin-top:10px">
-        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Зберегти
-      </button>
-    </div>
-  `).join('');
-  dayFormEntries.forEach(e => {
-    const el = document.getElementById(e.id + '-time');
+  var c = document.getElementById('day-entries-container');
+  var html = '';
+  for (var i = 0; i < dayFormEntries.length; i++) {
+    var e = dayFormEntries[i];
+    html += '<div class="card" id="' + e.id + '">';
+    html += '<div class="entry-hdr"><div class="entry-hdr-left">';
+    html += '<span class="card-time-small" id="' + e.id + '-time"></span>';
+    html += '</div>';
+    if (dayFormEntries.length > 1) {
+      html += '<button class="del-entry-btn" onclick="removeDayEntry(\'' + e.id + '\')">&#x2715;</button>';
+    }
+    html += '</div>';
+    html += '<div class="field"><div class="field-label">Ситуація</div><textarea rows="2" id="' + e.id + '-sit" placeholder="Що сталось?"></textarea></div>';
+    html += '<div class="field"><div class="field-label">Думка</div><textarea rows="2" id="' + e.id + '-th" placeholder="Що подумав?"></textarea></div>';
+    html += '<div class="field"><div class="field-label">Емоція</div><textarea rows="1" id="' + e.id + '-em" placeholder="Що відчув?"></textarea></div>';
+    html += '<div class="divider"></div>';
+    html += '<div class="field"><div class="field-label">Альтернативна думка</div><textarea rows="2" id="' + e.id + '-alt" placeholder="Як ще можна подивитись на це?"></textarea></div>';
+    html += '<button class="btn btn-primary" onclick="saveDayEntry(\'' + e.id + '\')" style="margin-top:10px">';
+    html += '<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+    html += 'Зберегти</button></div>';
+  }
+  c.innerHTML = html;
+  for (var j = 0; j < dayFormEntries.length; j++) {
+    var el = document.getElementById(dayFormEntries[j].id + '-time');
     if (el) el.textContent = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
-  });
+  }
 }
 
-function removeDayEntry(id) { dayFormEntries = dayFormEntries.filter(e => e.id !== id); renderDayForms(); }
+function removeDayEntry(id) { dayFormEntries = dayFormEntries.filter(function(e) { return e.id !== id; }); renderDayForms(); }
 
 async function saveDayEntry(id) {
-  const sit = document.getElementById(id + '-sit').value.trim();
-  const th = document.getElementById(id + '-th').value.trim();
-  const em = document.getElementById(id + '-em').value.trim();
-  const alt = document.getElementById(id + '-alt').value.trim();
+  var sit = document.getElementById(id + '-sit').value.trim();
+  var th = document.getElementById(id + '-th').value.trim();
+  var em = document.getElementById(id + '-em').value.trim();
+  var alt = document.getElementById(id + '-alt').value.trim();
   if (!sit && !th && !em && !alt) { showToast('Заповніть хоча б одне поле'); return; }
-  const entry = { id: Date.now() + Math.random(), ts: new Date().toISOString(), situation: sit, thought: th, emotion: em, altThought: alt };
+  var entry = { id: Date.now() + Math.random(), ts: new Date().toISOString(), situation: sit, thought: th, emotion: em, altThought: alt };
   data.dayEntries.unshift(entry);
-  dayFormEntries = dayFormEntries.filter(e => e.id !== id);
+  dayFormEntries = dayFormEntries.filter(function(e) { return e.id !== id; });
   if (dayFormEntries.length === 0) addDayEntry(); else renderDayForms();
-  showToast('Збережено ✓');
+  showToast('Збережено');
   await saveData();
   renderHistory();
   renderChecklist();
 }
 
 async function deleteDayEntry(entryId) {
-  data.dayEntries = data.dayEntries.filter(e => String(e.id) !== String(entryId));
+  data.dayEntries = data.dayEntries.filter(function(e) { return String(e.id) !== String(entryId); });
   await saveData();
   renderHistory();
   renderChecklist();
   showToast('Запис видалено');
 }
 
-// ─── EVENING ──────────────────────────────────────────────────────────────────
 function insertPrompt(text) {
-  const ta = document.getElementById('evening-input');
-  const val = ta.value;
-  const needsNewline = val.length > 0 && !val.endsWith('\n');
+  var ta = document.getElementById('evening-input');
+  var val = ta.value;
+  var needsNewline = val.length > 0 && val[val.length - 1] !== '\n';
   ta.value = val + (needsNewline ? '\n' : '') + text;
   ta.focus();
 }
 
 async function saveEvening() {
-  const text = document.getElementById('evening-input').value.trim();
+  var text = document.getElementById('evening-input').value.trim();
   if (!text) { showToast('Напишіть щось спочатку'); return; }
-  const entry = { id: Date.now(), ts: new Date().toISOString(), text };
+  var entry = { id: Date.now(), ts: new Date().toISOString(), text: text };
   data.eveningEntries.unshift(entry);
   document.getElementById('evening-input').value = '';
-  showToast('Збережено ✓');
+  showToast('Збережено');
   await saveData();
   renderEveningHistory();
   renderHistory();
 }
 
 async function deleteEveningEntry(entryId) {
-  data.eveningEntries = data.eveningEntries.filter(e => String(e.id) !== String(entryId));
+  data.eveningEntries = data.eveningEntries.filter(function(e) { return String(e.id) !== String(entryId); });
   await saveData();
   renderEveningHistory();
   renderHistory();
@@ -541,193 +553,267 @@ async function deleteEveningEntry(entryId) {
 }
 
 function renderEveningHistory() {
-  const c = document.getElementById('evening-history-container');
-  const entries = (data.eveningEntries || []).slice(0, 30);
+  var c = document.getElementById('evening-history-container');
+  var entries = (data.eveningEntries || []).slice(0, 30);
   if (!entries.length) { c.innerHTML = ''; return; }
-  c.innerHTML = '<div style="height:4px"></div><div class="history-day-label" style="padding:0 2px;margin-bottom:8px">Попередні записи</div>' +
-    entries.map(e => `
-      <div class="evening-hist">
-        <div class="evening-hist-content">
-          <div class="evening-hist-time">${formatDateTime(e.ts)}</div>
-          <div class="evening-hist-text">${escHtml(e.text)}</div>
-        </div>
-        <button class="del-icon-btn" onclick="deleteEveningEntry('${e.id}')" title="Видалити">🗑</button>
-      </div>
-    `).join('');
+  var groups = {};
+  for (var i = 0; i < entries.length; i++) {
+    var key = formatDayKey(entries[i].ts);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(entries[i]);
+  }
+  var html = '<div style="height:4px"></div><div class="history-day-label" style="padding:0 2px;margin-bottom:8px">Попередні записи</div>';
+  var days = Object.keys(groups);
+  for (var d = 0; d < days.length; d++) {
+    var day = days[d];
+    html += '<div style="display:flex;align-items:center;gap:8px;margin:8px 0 6px">';
+    html += '<div style="flex:1;height:0.5px;background:var(--border)"></div>';
+    html += '<span style="font-size:11px;color:var(--text-hint);white-space:nowrap">' + day + '</span>';
+    html += '<div style="flex:1;height:0.5px;background:var(--border)"></div></div>';
+    var items = groups[day];
+    for (var k = 0; k < items.length; k++) {
+      var en = items[k];
+      html += '<div class="evening-hist" style="background:#fffdf5;border-color:#fac775">';
+      html += '<div class="evening-hist-content">';
+      html += '<div class="evening-hist-time">' + formatTime(en.ts) + '</div>';
+      html += '<div class="evening-hist-text">' + escHtml(en.text) + '</div>';
+      html += '</div>';
+      html += '<button class="del-icon-btn" data-type="evening" data-id="' + en.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+      html += '</div>';
+    }
+  }
+  c.innerHTML = html;
 }
 
-// ─── HISTORY ──────────────────────────────────────────────────────────────────
 function setHistoryTab(tab) {
   currentHistoryTab = tab;
-  document.querySelectorAll('.seg-btn').forEach((b, i) => b.classList.toggle('active', (tab === 'day' && i === 0) || (tab === 'evening' && i === 1)));
+  var btns = document.querySelectorAll('.seg-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  if (tab === 'day') btns[0].classList.add('active'); else btns[1].classList.add('active');
   renderHistory();
 }
 
 function renderHistory() {
-  const c = document.getElementById('history-container');
+  var c = document.getElementById('history-container');
   if (currentHistoryTab === 'day') {
-    const entries = data.dayEntries || [];
-    if (!entries.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Ще немає записів.<br>Додайте перший запис у вкладці "Вдень".</div></div>'; return; }
-    const groups = {};
-    entries.forEach(e => { const key = formatDayKey(e.ts); if (!groups[key]) groups[key] = []; groups[key].push(e); });
-    c.innerHTML = Object.entries(groups).map(([day, items]) => `
-      <div class="history-day">
-        <div class="history-day-label">${day}</div>
-        ${items.map(e => {
-          const emoClass = emotionClass(e.emotion);
-          const dotColor = emoClass === 'emo-red' ? '#D85A30' : emoClass === 'emo-orange' ? '#BA7517' : emoClass === 'emo-blue' ? '#378ADD' : emoClass === 'emo-green' ? '#639922' : emoClass === 'emo-purple' ? '#534AB7' : emoClass === 'emo-pink' ? '#D4537E' : '#888';
-          return `
-          <div class="history-card" style="${emoClass ? 'background:' + (emoClass==='emo-red'?'#FAECE7':emoClass==='emo-orange'?'#FAEEDA':emoClass==='emo-blue'?'#E6F1FB':emoClass==='emo-green'?'#EAF3DE':emoClass==='emo-purple'?'#EEEDFE':emoClass==='emo-pink'?'#FBEAF0':'#F1EFE8') + ';border-color:' + (emoClass==='emo-red'?'#F5C4B3':emoClass==='emo-orange'?'#FAC775':emoClass==='emo-blue'?'#B5D4F4':emoClass==='emo-green'?'#C0DD97':emoClass==='emo-purple'?'#CECBF6':emoClass==='emo-pink'?'#F4C0D1':'#D3D1C7') : ''}">
-            <div class="history-card-header" onclick="toggleHistCard(this)">
-              <span class="history-card-time">${formatTime(e.ts)}</span>
-              ${e.emotion ? `<div class="history-emotion-dot" style="background:${dotColor}"></div>` : ''}
-              <span class="history-card-preview">${escHtml(e.situation || e.thought || '—')}</span>
-              <button class="del-icon-btn" onclick="event.stopPropagation();deleteDayEntry('${e.id}')" title="Видалити">🗑</button>
-              <svg class="history-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-            <div class="history-card-body">
-              ${e.thought ? `<div class="history-row"><div class="history-tag">Думка</div><div class="history-val">${escHtml(e.thought)}</div></div>` : ''}
-              ${e.emotion ? `<div class="history-row"><div class="history-tag">Емоція</div><div class="history-val">${escHtml(e.emotion)}</div></div>` : ''}
-              ${e.altThought ? `<div class="history-row"><div class="history-tag">Альтернативна думка</div><div class="history-val">${escHtml(e.altThought)}</div></div>` : ''}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    `).join('');
+    var entries = data.dayEntries || [];
+    if (!entries.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">&#x1F4DD;</div><div class="empty-text">Ще немає записів.</div></div>'; return; }
+    var groups = {};
+    for (var i = 0; i < entries.length; i++) {
+      var key = formatDayKey(entries[i].ts);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(entries[i]);
+    }
+    var html = '';
+    var days = Object.keys(groups);
+    for (var d = 0; d < days.length; d++) {
+      html += '<div class="history-day"><div class="history-day-label">' + days[d] + '</div>';
+      var items = groups[days[d]];
+      for (var k = 0; k < items.length; k++) {
+        var e = items[k];
+        var emoClass = emotionClass(e.emotion);
+        var bg = EMO_BG[emoClass] || '#fff';
+        var br = EMO_BR[emoClass] || '#eee';
+        var dot = EMO_DOT[emoClass] || '#ccc';
+        html += '<div class="history-card" style="background:' + bg + ';border-color:' + br + '">';
+        html += '<div class="history-card-header" onclick="toggleHistCard(this)">';
+        html += '<span class="history-card-time">' + formatTime(e.ts) + '</span>';
+        if (e.emotion) html += '<div class="history-emotion-dot" style="background:' + dot + '"></div>';
+        html += '<span class="history-card-preview"><span style="font-size:10px;color:var(--text-hint);margin-right:3px">Ситуація:</span>' + escHtml(e.situation || e.thought || '—') + '</span>';
+        html += '<button class="del-icon-btn" data-type="day" data-id="' + e.id + '" onclick="event.stopPropagation();confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+        html += '<svg class="history-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
+        html += '</div>';
+        html += '<div class="history-card-body">';
+        if (e.thought) html += '<div class="history-row"><div class="history-tag">Думка</div><div class="history-val">' + escHtml(e.thought) + '</div></div>';
+        if (e.emotion) html += '<div class="history-row"><div class="history-tag">Емоція</div><div class="history-val">' + escHtml(e.emotion) + '</div></div>';
+        if (e.altThought) html += '<div class="history-row"><div class="history-tag">Альтернативна думка</div><div class="history-val">' + escHtml(e.altThought) + '</div></div>';
+        html += '</div></div>';
+      }
+      html += '</div>';
+    }
+    c.innerHTML = html;
   } else {
-    const entries = data.eveningEntries || [];
-    if (!entries.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">⭐</div><div class="empty-text">Ще немає вечірніх записів.</div></div>'; return; }
-    c.innerHTML = entries.map(e => `
-      <div class="evening-hist">
-        <div class="evening-hist-content">
-          <div class="evening-hist-time">${formatDateTime(e.ts)}</div>
-          <div class="evening-hist-text">${escHtml(e.text)}</div>
-        </div>
-        <button class="del-icon-btn" onclick="deleteEveningEntry('${e.id}')" title="Видалити">🗑</button>
-      </div>
-    `).join('');
+    var evEntries = data.eveningEntries || [];
+    if (!evEntries.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">&#x2B50;</div><div class="empty-text">Ще немає вечірніх записів.</div></div>'; return; }
+    var evHtml = '';
+    for (var ei = 0; ei < evEntries.length; ei++) {
+      var ev = evEntries[ei];
+      evHtml += '<div class="evening-hist">';
+      evHtml += '<div class="evening-hist-content">';
+      evHtml += '<div class="evening-hist-time">' + formatDateTime(ev.ts) + '</div>';
+      evHtml += '<div class="evening-hist-text">' + escHtml(ev.text) + '</div>';
+      evHtml += '</div>';
+      evHtml += '<button class="del-icon-btn" data-type="evening" data-id="' + ev.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+      evHtml += '</div>';
+    }
+    c.innerHTML = evHtml;
   }
 }
 
 function toggleHistCard(header) {
-  const body = header.nextElementSibling;
-  const open = body.classList.toggle('open');
+  var body = header.nextElementSibling;
+  var open = body.classList.toggle('open');
   header.classList.toggle('open', open);
 }
 
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function confirmDeleteBtn(btn) {
+  confirmDelete(btn, btn.dataset.type, btn.dataset.id);
+}
+
+function confirmDelete(btn, type, id) {
+  var card = btn.closest('.history-card, .evening-hist');
+  if (!card) return;
+  var existing = card.querySelector('.confirm-delete');
+  if (existing) { existing.remove(); return; }
+  var bar = document.createElement('div');
+  bar.className = 'confirm-delete';
+  bar.innerHTML = '<span class="confirm-text">Видалити цей запис?</span><button class="confirm-no" onclick="this.parentElement.remove()">Скасувати</button><button class="confirm-yes">Видалити</button>';
+  bar.querySelector('.confirm-yes').onclick = function() {
+    if (type === 'day') deleteDayEntry(id); else deleteEveningEntry(id);
+  };
+  card.appendChild(bar);
+}
+
 function setExportMode(mode, days, btn) {
   exportMode = mode;
   if (mode === 'quick') {
     exportDays = days;
-    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    var btns = document.querySelectorAll('.period-btn');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
     if (btn) btn.classList.add('active');
   } else {
-    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    var btns2 = document.querySelectorAll('.period-btn');
+    for (var j = 0; j < btns2.length; j++) btns2[j].classList.remove('active');
   }
 }
 
 function renderChecklist() {
-  const c = document.getElementById('checklist');
+  var c = document.getElementById('checklist');
   if (!c) return;
-  const all = [...(data.dayEntries || [])].map(e => ({ ...e, type: 'day' }))
-    .concat([...(data.eveningEntries || [])].map(e => ({ ...e, type: 'evening' })))
-    .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+  var all = [];
+  for (var i = 0; i < (data.dayEntries || []).length; i++) all.push(Object.assign({}, data.dayEntries[i], { type: 'day' }));
+  for (var j = 0; j < (data.eveningEntries || []).length; j++) all.push(Object.assign({}, data.eveningEntries[j], { type: 'evening' }));
+  all.sort(function(a, b) { return new Date(b.ts) - new Date(a.ts); });
   if (!all.length) { c.innerHTML = '<div style="padding:12px;font-size:13px;color:var(--text-hint);text-align:center">Немає записів</div>'; return; }
-  c.innerHTML = all.map(e => `
-    <label class="check-item">
-      <input type="checkbox" value="${e.id}" data-type="${e.type}">
-      <span class="check-item-text">${e.type === 'evening' ? '⭐ ' : ''}${escHtml(e.situation || e.thought || e.text || '—')}</span>
-      <span class="check-item-meta">${formatDateTime(e.ts)}</span>
-    </label>
-  `).join('');
+  var html = '';
+  for (var k = 0; k < all.length; k++) {
+    var e = all[k];
+    html += '<label class="check-item">';
+    html += '<input type="checkbox" value="' + e.id + '" data-type="' + e.type + '">';
+    html += '<span class="check-item-text">' + (e.type === 'evening' ? '&#x2B50; ' : '') + escHtml(e.situation || e.thought || e.text || '—') + '</span>';
+    html += '<span class="check-item-meta">' + formatDateTime(e.ts) + '</span>';
+    html += '</label>';
+  }
+  c.innerHTML = html;
 }
 
 function buildExport() {
-  let dayEntries = [], eveningEntries = [];
-
+  var dayEntries = [], eveningEntries = [];
   if (exportMode === 'quick') {
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - exportDays);
-    dayEntries = (data.dayEntries || []).filter(e => new Date(e.ts) >= cutoff);
-    eveningEntries = (data.eveningEntries || []).filter(e => new Date(e.ts) >= cutoff);
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - exportDays);
+    dayEntries = (data.dayEntries || []).filter(function(e) { return new Date(e.ts) >= cutoff; });
+    eveningEntries = (data.eveningEntries || []).filter(function(e) { return new Date(e.ts) >= cutoff; });
   } else if (exportMode === 'range') {
-    const from = new Date(document.getElementById('date-from').value);
-    const to = new Date(document.getElementById('date-to').value); to.setHours(23,59,59);
-    dayEntries = (data.dayEntries || []).filter(e => { const d = new Date(e.ts); return d >= from && d <= to; });
-    eveningEntries = (data.eveningEntries || []).filter(e => { const d = new Date(e.ts); return d >= from && d <= to; });
+    var from = new Date(document.getElementById('date-from').value);
+    var to = new Date(document.getElementById('date-to').value); to.setHours(23,59,59);
+    dayEntries = (data.dayEntries || []).filter(function(e) { var d = new Date(e.ts); return d >= from && d <= to; });
+    eveningEntries = (data.eveningEntries || []).filter(function(e) { var d = new Date(e.ts); return d >= from && d <= to; });
   } else {
-    const checked = [...document.querySelectorAll('#checklist input[type=checkbox]:checked')];
-    checked.forEach(cb => {
+    var checked = document.querySelectorAll('#checklist input[type=checkbox]:checked');
+    for (var ci = 0; ci < checked.length; ci++) {
+      var cb = checked[ci];
       if (cb.dataset.type === 'day') {
-        const e = data.dayEntries.find(x => String(x.id) === cb.value);
-        if (e) dayEntries.push(e);
+        var de = data.dayEntries.find(function(x) { return String(x.id) === cb.value; });
+        if (de) dayEntries.push(de);
       } else {
-        const e = data.eveningEntries.find(x => String(x.id) === cb.value);
-        if (e) eveningEntries.push(e);
+        var ee = data.eveningEntries.find(function(x) { return String(x.id) === cb.value; });
+        if (ee) eveningEntries.push(ee);
       }
-    });
+    }
   }
-
   if (!dayEntries.length && !eveningEntries.length) { showToast('Немає записів для звіту'); return; }
-
-  const periodLabel = exportMode === 'quick'
-    ? `Останні ${exportDays} днів`
-    : exportMode === 'range'
-    ? `${document.getElementById('date-from').value} — ${document.getElementById('date-to').value}`
-    : 'Вибрані записи';
-
-  const dayHtml = dayEntries.map(e => `
-    <div class="export-entry">
-      <div class="export-meta"><span class="export-type-badge">Денний</span><span class="export-time-str">${formatDateTime(e.ts)}</span></div>
-      ${e.situation ? `<div class="export-field"><div class="export-field-label">Ситуація</div><div class="export-field-val">${escHtml(e.situation)}</div></div>` : ''}
-      ${e.thought ? `<div class="export-field"><div class="export-field-label">Думка</div><div class="export-field-val">${escHtml(e.thought)}</div></div>` : ''}
-      ${e.emotion ? `<div class="export-field"><div class="export-field-label">Емоція</div><div class="export-field-val">${escHtml(e.emotion)}</div></div>` : ''}
-      ${e.altThought ? `<div class="export-field"><div class="export-field-label">Альтернативна думка</div><div class="export-field-val">${escHtml(e.altThought)}</div></div>` : ''}
-    </div>`).join('');
-
-  const evenHtml = eveningEntries.map(e => `
-    <div class="export-entry">
-      <div class="export-meta"><span class="export-type-badge evening">⭐ Вечірній</span><span class="export-time-str">${formatDateTime(e.ts)}</span></div>
-      <div class="export-field"><div class="export-field-val">${escHtml(e.text)}</div></div>
-    </div>`).join('');
-
-  document.getElementById('export-area').innerHTML = `
-    <div id="export-preview">
-      <div class="export-header"><h2>КПТ Щоденник</h2><p>${periodLabel}</p></div>
-      ${dayHtml}${evenHtml}
-    </div>
-    <button class="btn btn-primary" onclick="saveAsImage()" style="margin-top:12px">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Зберегти картинку
-    </button>`;
+  var periodLabel = exportMode === 'quick' ? ('Останні ' + exportDays + ' днів') : exportMode === 'range' ? (document.getElementById('date-from').value + ' — ' + document.getElementById('date-to').value) : 'Вибрані записи';
+  var dayHtml = '';
+  for (var di = 0; di < dayEntries.length; di++) {
+    var de2 = dayEntries[di];
+    var emoClass = emotionClass(de2.emotion);
+    var bg = EMO_BG[emoClass] || '#fff';
+    var br = EMO_BR[emoClass] || '#eee';
+    var tx = EMO_TX[emoClass] || '#222';
+    dayHtml += '<div class="export-entry" style="background:' + bg + ';border-color:' + br + '">';
+    dayHtml += '<div class="export-meta"><span class="export-type-badge">Денний</span><span class="export-time-str">' + formatDateTime(de2.ts) + '</span></div>';
+    if (de2.situation) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Ситуація</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.situation) + '</div></div>';
+    if (de2.thought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.thought) + '</div></div>';
+    if (de2.emotion) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Емоція</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.emotion) + '</div></div>';
+    if (de2.altThought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Альтернативна думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.altThought) + '</div></div>';
+    dayHtml += '</div>';
+  }
+  var evenHtml = '';
+  for (var ei2 = 0; ei2 < eveningEntries.length; ei2++) {
+    var ev2 = eveningEntries[ei2];
+    evenHtml += '<div class="export-entry" style="background:#fffdf5;border-color:#fac775">';
+    evenHtml += '<div class="export-meta"><span class="export-type-badge evening">&#x2B50; Вечірній</span><span class="export-time-str">' + formatDateTime(ev2.ts) + '</span></div>';
+    evenHtml += '<div class="export-field"><div class="export-field-val">' + escHtml(ev2.text) + '</div></div>';
+    evenHtml += '</div>';
+  }
+  var exportHTML = '<div id="export-preview">';
+  exportHTML += '<div class="export-header"><h2>КПТ Щоденник</h2><p>' + periodLabel + '</p></div>';
+  exportHTML += dayHtml + evenHtml + '</div>';
+  exportHTML += '<div style="display:flex;gap:8px;margin-top:12px">';
+  exportHTML += '<button class="btn btn-primary" onclick="copyExportText()" style="flex:1;background:var(--bg);border:0.5px solid var(--border-med);color:var(--text-sec)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Скопіювати</button>';
+  exportHTML += '<button class="btn btn-primary" onclick="saveAsImage()" style="flex:1"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Картинка</button>';
+  exportHTML += '</div>';
+  document.getElementById('export-area').innerHTML = exportHTML;
   document.getElementById('export-area').scrollIntoView({ behavior: 'smooth' });
 }
 
+function copyExportText() {
+  var entries = document.querySelectorAll('#export-preview .export-entry');
+  if (!entries.length) { showToast('Немає записів'); return; }
+  var text = 'КПТ Щоденник\n' + '---\n\n';
+  for (var i = 0; i < entries.length; i++) {
+    var entry = entries[i];
+    var badge = entry.querySelector('.export-type-badge');
+    var time = entry.querySelector('.export-time-str');
+    text += (badge ? badge.textContent + ' | ' : '') + (time ? time.textContent : '') + '\n';
+    var fields = entry.querySelectorAll('.export-field');
+    for (var j = 0; j < fields.length; j++) {
+      var label = fields[j].querySelector('.export-field-label');
+      var val = fields[j].querySelector('.export-field-val');
+      if (label && val) text += label.textContent + ': ' + val.textContent + '\n';
+      else if (val) text += val.textContent + '\n';
+    }
+    text += '\n';
+  }
+  navigator.clipboard.writeText(text).then(function() { showToast('Скопійовано'); }).catch(function() { showToast('Помилка копіювання'); });
+}
+
 function saveAsImage() {
-  const el = document.getElementById('export-preview');
+  var el = document.getElementById('export-preview');
   if (!el) return;
   if (typeof html2canvas !== 'undefined') { doCapture(el); return; }
-  const s = document.createElement('script');
+  var s = document.createElement('script');
   s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-  s.onload = () => doCapture(el);
+  s.onload = function() { doCapture(el); };
   document.head.appendChild(s);
 }
 
 function doCapture(el) {
   showToast('Формую зображення...');
-  html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
-    const link = document.createElement('a');
+  html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
+    var link = document.createElement('a');
     link.download = 'кпт-записи.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-    showToast('Збережено ✓');
+    showToast('Збережено');
   });
 }
 
-// ─── NAV ──────────────────────────────────────────────────────────────────────
 function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+  var navBtns = document.querySelectorAll('.nav-btn');
+  for (var j = 0; j < navBtns.length; j++) navBtns[j].classList.remove('active');
   document.getElementById('screen-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
   document.getElementById('content').scrollTop = 0;
@@ -735,19 +821,18 @@ function showScreen(name) {
   if (name === 'export') renderChecklist();
 }
 
-// ─── UTILS ────────────────────────────────────────────────────────────────────
 function escHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
 }
 
-let toastTimer;
+var toastTimer;
 function showToast(msg) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2500);
 }
 </script>
 </body>
