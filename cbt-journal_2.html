@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="КПТ">
@@ -33,7 +33,7 @@ html, body { height: 100%; background: var(--bg); font-family: -apple-system, Bl
 /* Layout */
 #app { display: flex; flex-direction: column; height: 100%; padding-top: var(--safe-top); }
 #content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: calc(80px + var(--safe-bottom)); }
-#nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 0.5px solid var(--border-med); display: flex; padding-bottom: var(--safe-bottom); z-index: 100; }
+#nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 0.5px solid var(--border-med); display: flex; padding-bottom: calc(var(--safe-bottom) + 4px); z-index: 100; }
 .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 0 8px; border: none; background: transparent; color: var(--text-hint); font-size: 10px; font-family: inherit; cursor: pointer; transition: color 0.15s; }
 .nav-btn.active { color: var(--accent); }
 .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
@@ -43,7 +43,7 @@ html, body { height: 100%; background: var(--bg); font-family: -apple-system, Bl
 .screen.active { display: block; }
 
 /* Header */
-.page-header { padding: 8px 0 8px; }
+.page-header { padding: 16px 0 8px; }
 .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 .page-sub { font-size: 13px; color: var(--text-sec); margin-top: 2px; }
 
