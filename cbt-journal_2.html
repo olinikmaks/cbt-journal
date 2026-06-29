@@ -846,23 +846,30 @@ function copyExportText() {
   var dayE = window._exportDay || [];
   var eveE = window._exportEve || [];
   if (!dayE.length && !eveE.length) { showToast('Немає записів'); return; }
-  var text = 'КПТ Щоденник';
+  var thin = '\u2508\u2508\u2508\u2508\u2508\u2508\u2508\u2508';
+  var thick = '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501';
+  var text = 'КПТ ЩОДЕННИК';
   if (window._exportLabel) text += '  ·  ' + window._exportLabel;
   text += '\n\n';
-  for (var i = 0; i < dayE.length; i++) {
-    var e = dayE[i];
-    text += '\u25C9 Денний  ·  ' + formatDateTime(e.ts) + '\n\n';
-    if (e.situation) text += 'Ситуація\n' + e.situation + '\n\n';
-    if (e.thought) text += 'Думка\n' + e.thought + '\n\n';
-    if (e.emotion) text += 'Емоція\n' + e.emotion + '\n\n';
-    if (e.altThought) text += 'Альтернативна думка\n' + e.altThought + '\n\n';
-    text += '\u00A0\n';
+  if (dayE.length) {
+    for (var i = 0; i < dayE.length; i++) {
+      var e = dayE[i];
+      if (i > 0) text += thin + '\n\n';
+      text += 'Денний  ·  ' + formatDateTime(e.ts) + '\n\n';
+      if (e.situation) text += 'СИТУАЦІЯ\n' + e.situation + '\n\n';
+      if (e.thought) text += 'ДУМКА\n' + e.thought + '\n\n';
+      if (e.emotion) text += 'ЕМОЦІЯ\n' + e.emotion + '\n\n';
+      if (e.altThought) text += 'АЛЬТЕРНАТИВНА ДУМКА\n' + e.altThought + '\n\n';
+    }
   }
-  for (var k = 0; k < eveE.length; k++) {
-    var ev = eveE[k];
-    text += '\u25C9 Вечірній  ·  ' + formatDateTime(ev.ts) + '\n\n';
-    text += ev.text + '\n\n';
-    text += '\u00A0\n';
+  if (dayE.length && eveE.length) text += thick + '\n\n';
+  if (eveE.length) {
+    for (var k = 0; k < eveE.length; k++) {
+      var ev = eveE[k];
+      if (k > 0) text += thin + '\n\n';
+      text += '\u2B50 Вечірній  ·  ' + formatDateTime(ev.ts) + '\n\n';
+      text += ev.text + '\n\n';
+    }
   }
   navigator.clipboard.writeText(text.trim()).then(function() { showToast('Скопійовано'); }).catch(function() { showToast('Помилка копіювання'); });
 }
