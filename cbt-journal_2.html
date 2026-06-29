@@ -836,7 +836,7 @@ function buildExport() {
   exportHTML += dayHtml + evenHtml + '</div>';
   exportHTML += '<div style="display:flex;gap:8px;margin-top:12px">';
   exportHTML += '<button class="btn btn-primary" onclick="copyExportText()" style="flex:1;background:var(--bg);border:0.5px solid var(--border-med);color:var(--text-sec)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Скопіювати</button>';
-  exportHTML += '<button class="btn btn-primary" onclick="saveAsImage()" style="flex:1"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Картинка</button>';
+  exportHTML += '<button class="btn btn-primary" onclick="saveAsPDF()" style="flex:1"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF</button>';
   exportHTML += '</div>';
   document.getElementById('export-area').innerHTML = exportHTML;
   document.getElementById('export-area').scrollIntoView({ behavior: 'smooth' });
@@ -854,10 +854,10 @@ function copyExportText() {
   for (var i = 0; i < dayE.length; i++) {
     var e = dayE[i];
     text += '\uD83D\uDCC4 ДЕННИЙ \u00B7 ' + formatDateTime(e.ts) + '\n\n';
-    if (e.situation) text += '  Ситуація:\n  ' + e.situation + '\n\n';
-    if (e.thought) text += '  Думка:\n  ' + e.thought + '\n\n';
-    if (e.emotion) text += '  Емоція:\n  ' + e.emotion + '\n\n';
-    if (e.altThought) text += '  Альтернативна думка:\n  ' + e.altThought + '\n\n';
+    if (e.situation) text += 'СИТУАЦІЯ\n' + e.situation + '\n\n';
+    if (e.thought) text += 'ДУМКА\n' + e.thought + '\n\n';
+    if (e.emotion) text += 'ЕМОЦІЯ\n' + e.emotion + '\n\n';
+    if (e.altThought) text += 'АЛЬТЕРНАТИВНА ДУМКА\n' + e.altThought + '\n\n';
     text += sep + '\n\n';
   }
   for (var k = 0; k < eveE.length; k++) {
@@ -869,25 +869,62 @@ function copyExportText() {
   navigator.clipboard.writeText(text).then(function() { showToast('Скопійовано'); }).catch(function() { showToast('Помилка копіювання'); });
 }
 
-function saveAsImage() {
+function saveAsPDF() {
   var el = document.getElementById('export-preview');
   if (!el) return;
-  if (typeof html2canvas !== 'undefined') { doCapture(el); return; }
-  var s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-  s.onload = function() { doCapture(el); };
-  document.head.appendChild(s);
+  var needed = [];
+  if (typeof html2canvas === 'undefined') needed.push('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  if (typeof window.jspdf === 'undefined') needed.push('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  if (!needed.length) { doPDF(el); return; }
+  showToast('Завантаження...');
+  var loaded = 0;
+  for (var i = 0; i < needed.length; i++) {
+    var s = document.createElement('script');
+    s.src = needed[i];
+    s.onload = function() { loaded++; if (loaded === needed.length) doPDF(el); };
+    document.head.appendChild(s);
+  }
 }
 
-function doCapture(el) {
-  showToast('Формую зображення...');
+function doPDF(el) {
+  showToast('Формую PDF...');
   html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
-    var link = document.createElement('a');
-    link.download = 'кпт-записи.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    showToast('Збережено');
-  });
+    var jsPDF = window.jspdf.jsPDF;
+    var pdf = new jsPDF('p', 'mm', 'a4');
+    var pw = pdf.internal.pageSize.getWidth();
+    var ph = pdf.internal.pageSize.getHeight();
+    var margin = 10;
+    var imgW = pw - margin * 2;
+    var imgH = canvas.height * imgW / canvas.width;
+    var img = canvas.toDataURL('image/jpeg', 0.92);
+    var y = margin;
+    var remaining = imgH;
+    if (imgH <= ph - margin * 2) {
+      pdf.addImage(img, 'JPEG', margin, y, imgW, imgH);
+    } else {
+      // split across pages
+      var pageContentH = ph - margin * 2;
+      var srcPageH = pageContentH * canvas.width / imgW;
+      var rendered = 0;
+      while (rendered < canvas.height) {
+        var sliceH = Math.min(srcPageH, canvas.height - rendered);
+        var pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sliceH;
+        var ctx = pageCanvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        ctx.drawImage(canvas, 0, rendered, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        var pageImg = pageCanvas.toDataURL('image/jpeg', 0.92);
+        var pageImgH = sliceH * imgW / canvas.width;
+        if (rendered > 0) pdf.addPage();
+        pdf.addImage(pageImg, 'JPEG', margin, margin, imgW, pageImgH);
+        rendered += sliceH;
+      }
+    }
+    pdf.save('кпт-щоденник.pdf');
+    showToast('PDF збережено');
+  }).catch(function() { showToast('Помилка PDF'); });
 }
 
 function showScreen(name) {
