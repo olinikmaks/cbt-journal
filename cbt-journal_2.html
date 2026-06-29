@@ -158,19 +158,24 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 .check-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
 .check-item-text { flex: 1; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .check-item-meta { font-size: 11px; color: var(--text-hint); flex-shrink: 0; }
-#export-preview { background: #fff; border-radius: var(--radius); border: 0.5px solid var(--border); padding: 20px; margin-top: 12px; }
-.export-header { text-align: center; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #eee; }
-.export-header h2 { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 2px; }
+#export-preview { background: #fff; border-radius: var(--radius); border: 0.5px solid var(--border); padding: 20px 16px; margin-top: 12px; }
+.export-header { text-align: center; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #ececec; }
+.export-header h2 { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
 .export-header p { font-size: 12px; color: #999; }
-.export-entry { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 0.5px solid #f0f0f0; }
-.export-entry:last-child { border-bottom: none; margin-bottom: 0; }
-.export-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.export-type-badge { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 20px; background: var(--accent-light); color: var(--accent-text); }
-.export-type-badge.evening { background: var(--star-light); color: #c07800; }
-.export-time-str { font-size: 11px; color: #aaa; }
-.export-field { margin-bottom: 6px; }
-.export-field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #aaa; margin-bottom: 1px; }
-.export-field-val { font-size: 13px; color: #222; line-height: 1.5; }
+.export-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #b0b0b0; margin: 18px 0 10px 2px; }
+.export-entry { border-radius: 12px; padding: 14px 15px; margin-bottom: 12px; }
+.export-entry.eve { background: #FFFBF0; border: 0.5px solid #F5DFA8; }
+.export-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
+.export-type-badge { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 20px; background: #E6F1FB; color: #185FA5; }
+.export-type-badge.evening { background: #FAEEDA; color: #854F0B; }
+.export-time-str { font-size: 11px; color: #999; }
+.export-field { margin-bottom: 10px; }
+.export-field:last-child { margin-bottom: 0; }
+.export-field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+.export-field-val { font-size: 13px; line-height: 1.45; }
+.export-entry.eve .export-field-val { font-size: 13.5px; line-height: 1.5; color: #3a2c10; }
+.export-emo-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.export-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
 
 /* Toast */
 #toast { position: fixed; top: calc(var(--safe-top) + 12px); left: 50%; transform: translateX(-50%) translateY(-80px); background: #1a1a1a; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 14px; z-index: 999; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1); white-space: nowrap; }
@@ -358,6 +363,7 @@ const EMO_BG = {'emo-red':'#FAECE7','emo-orange':'#FAEEDA','emo-blue':'#E6F1FB',
 const EMO_BR = {'emo-red':'#F5C4B3','emo-orange':'#FAC775','emo-blue':'#B5D4F4','emo-green':'#C0DD97','emo-purple':'#CECBF6','emo-pink':'#F4C0D1','emo-gray':'#D3D1C7'};
 const EMO_TX = {'emo-red':'#4A1B0C','emo-orange':'#412402','emo-blue':'#042C53','emo-green':'#173404','emo-purple':'#26215C','emo-pink':'#4B1528','emo-gray':'#2C2C2A'};
 const EMO_DOT = {'emo-red':'#D85A30','emo-orange':'#BA7517','emo-blue':'#378ADD','emo-green':'#639922','emo-purple':'#534AB7','emo-pink':'#D4537E','emo-gray':'#888'};
+const EMO_PILL = {'emo-red':'#F0997B','emo-orange':'#EF9F27','emo-blue':'#85B7EB','emo-green':'#97C459','emo-purple':'#AFA9EC','emo-pink':'#ED93B1','emo-gray':'#B4B2A9'};
 
 const EMOTION_MAP = [
   [['trypoga','strakh','zlist','hniv','lyut','panika'], 'emo-red'],
@@ -815,25 +821,35 @@ function buildExport() {
     var bg = EMO_BG[emoClass] || '#fff';
     var br = EMO_BR[emoClass] || '#eee';
     var tx = EMO_TX[emoClass] || '#222';
-    dayHtml += '<div class="export-entry" style="background:' + bg + ';border-color:' + br + '">';
+    var pillBg = EMO_PILL[emoClass] || '#ddd';
+    dayHtml += '<div class="export-entry" style="background:' + bg + '">';
     dayHtml += '<div class="export-meta"><span class="export-type-badge">Денний</span><span class="export-time-str">' + formatDateTime(de2.ts) + '</span></div>';
-    if (de2.situation) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Ситуація</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.situation) + '</div></div>';
-    if (de2.thought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.thought) + '</div></div>';
-    if (de2.emotion) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Емоція</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.emotion) + '</div></div>';
-    if (de2.altThought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Альтернативна думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.altThought) + '</div></div>';
+    if (de2.situation) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.55">Ситуація</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.situation) + '</div></div>';
+    if (de2.thought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.55">Думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.thought) + '</div></div>';
+    if (de2.emotion) {
+      dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.55">Емоція</div><div class="export-emo-pills">';
+      var emos = de2.emotion.split(',').map(function(s){return s.trim();}).filter(Boolean);
+      for (var ee = 0; ee < emos.length; ee++) {
+        dayHtml += '<span class="export-pill" style="background:' + pillBg + ';color:' + tx + '">' + escHtml(emos[ee]) + '</span>';
+      }
+      dayHtml += '</div></div>';
+    }
+    if (de2.altThought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.55">Альтернативна думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.altThought) + '</div></div>';
     dayHtml += '</div>';
   }
   var evenHtml = '';
   for (var ei2 = 0; ei2 < eveningEntries.length; ei2++) {
     var ev2 = eveningEntries[ei2];
-    evenHtml += '<div class="export-entry" style="background:#fffdf5;border-color:#fac775">';
-    evenHtml += '<div class="export-meta"><span class="export-type-badge evening">&#x2B50; Вечірній</span><span class="export-time-str">' + formatDateTime(ev2.ts) + '</span></div>';
+    evenHtml += '<div class="export-entry eve">';
+    evenHtml += '<div class="export-meta"><span class="export-type-badge evening">&#x2605; Вечірній</span><span class="export-time-str">' + formatDateTime(ev2.ts) + '</span></div>';
     evenHtml += '<div class="export-field"><div class="export-field-val">' + escHtml(ev2.text) + '</div></div>';
     evenHtml += '</div>';
   }
   var exportHTML = '<div id="export-preview">';
   exportHTML += '<div class="export-header"><h2>КПТ Щоденник</h2><p>' + periodLabel + '</p></div>';
-  exportHTML += dayHtml + evenHtml + '</div>';
+  if (dayHtml) exportHTML += '<div class="export-section-title">Денні записи</div>' + dayHtml;
+  if (evenHtml) exportHTML += '<div class="export-section-title">Вечірні записи</div>' + evenHtml;
+  exportHTML += '</div>';
   exportHTML += '<div style="display:flex;gap:8px;margin-top:12px">';
   exportHTML += '<button class="btn btn-primary" onclick="copyExportText()" style="flex:1;background:var(--bg);border:0.5px solid var(--border-med);color:var(--text-sec)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Скопіювати</button>';
   exportHTML += '<button class="btn btn-primary" onclick="saveAsPDF()" style="flex:1"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF</button>';
