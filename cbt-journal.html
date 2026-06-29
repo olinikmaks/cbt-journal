@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="КПТ">
+<title>КПТ Щоденник</title>
+<style>
+:root {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --border-med: rgba(0,0,0,0.14);
+  --text: #1a1a1a;
+  --text-sec: #6b6b6b;
+  --text-hint: #aaaaaa;
+  --accent: #5b6af5;
+  --accent-light: #eef0ff;
+  --accent-text: #3a47c9;
+  --star: #f5a623;
+  --star-light: #fff8ee;
+  --danger: #e84040;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; color: var(--text); overflow: hidden; }
+
+/* Layout */
+#app { display: flex; flex-direction: column; height: 100%; padding-top: var(--safe-top); }
+#content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: calc(80px + var(--safe-bottom)); }
+#nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 0.5px solid var(--border-med); display: flex; padding-bottom: calc(var(--safe-bottom) + 4px); z-index: 100; }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 0 8px; border: none; background: transparent; color: var(--text-hint); font-size: 10px; font-family: inherit; cursor: pointer; transition: color 0.15s; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Screens */
+.screen { display: none; padding: 0 16px; }
+.screen.active { display: block; }
+
+/* Header */
+.page-header { padding: 16px 0 8px; }
+.page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.page-sub { font-size: 13px; color: var(--text-sec); margin-top: 2px; }
+
+/* Cards */
+.card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px; margin-bottom: 12px; transition: background 0.2s, border-color 0.2s; }
+
+/* Emotion card colors */
+.card.emo-red    { background: #FAECE7; border-color: #F5C4B3; }
+.card.emo-orange { background: #FAEEDA; border-color: #FAC775; }
+.card.emo-blue   { background: #E6F1FB; border-color: #B5D4F4; }
+.card.emo-green  { background: #EAF3DE; border-color: #C0DD97; }
+.card.emo-purple { background: #EEEDFE; border-color: #CECBF6; }
+.card.emo-pink   { background: #FBEAF0; border-color: #F4C0D1; }
+.card.emo-gray   { background: #F1EFE8; border-color: #D3D1C7; }
+
+/* Emotion badge */
+.emotion-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 12px; }
+.card.emo-red    .emotion-badge { background: #D85A30; color: #fff; }
+.card.emo-orange .emotion-badge { background: #BA7517; color: #fff; }
+.card.emo-blue   .emotion-badge { background: #378ADD; color: #fff; }
+.card.emo-green  .emotion-badge { background: #639922; color: #fff; }
+.card.emo-purple .emotion-badge { background: #534AB7; color: #fff; }
+.card.emo-pink   .emotion-badge { background: #D4537E; color: #fff; }
+.card.emo-gray   .emotion-badge { background: #5F5E5A; color: #fff; }
+
+/* Colored card text */
+.card.emo-red .field-label,.card.emo-orange .field-label,.card.emo-blue .field-label,
+.card.emo-green .field-label,.card.emo-purple .field-label,.card.emo-pink .field-label,
+.card.emo-gray .field-label { color: inherit; opacity: 0.6; }
+.card[class*="emo-"] .field-value { color: inherit; }
+.card[class*="emo-"] .divider { background: currentColor; opacity: 0.12; }
+.card[class*="emo-"] .card-time-small { opacity: 0.6; }
+
+/* Entry card header row */
+.entry-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.entry-hdr-left { display: flex; align-items: center; gap: 8px; }
+.card-time-small { font-size: 12px; color: var(--text-hint); }
+.del-entry-btn { width: 26px; height: 26px; border-radius: 50%; border: 0.5px solid var(--border-med); background: transparent; color: var(--text-hint); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.card[class*="emo-"] .del-entry-btn { border-color: currentColor; opacity: 0.4; color: inherit; }
+
+/* Fields */
+.field { margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+.field-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.field-value { font-size: 15px; color: var(--text); line-height: 1.5; }
+textarea, input[type=text], input[type=date] { width: 100%; background: var(--bg); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 15px; font-family: inherit; color: var(--text); resize: none; outline: none; line-height: 1.5; }
+textarea:focus, input[type=text]:focus, input[type=date]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,106,245,0.1); }
+textarea::placeholder, input::placeholder { color: var(--text-hint); }
+
+/* Divider */
+.divider { height: 0.5px; background: var(--border); margin: 12px 0; }
+
+/* Buttons */
+.btn { display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: none; padding: 12px 16px; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: #fff; width: 100%; }
+.btn-ghost { background: transparent; border: 0.5px dashed var(--border-med); color: var(--text-sec); width: 100%; }
+.btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Evening chips */
+.chip-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+.chip { padding: 7px 12px; border-radius: 20px; border: 0.5px solid var(--border-med); background: var(--bg); font-size: 13px; font-family: inherit; color: var(--text-sec); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.chip:active { background: var(--accent-light); color: var(--accent-text); border-color: var(--accent); transform: scale(0.96); }
+.evening-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--star-light); border-radius: 20px; padding: 4px 10px; font-size: 12px; color: #c07800; font-weight: 500; margin-bottom: 12px; }
+
+/* Evening history */
+.evening-hist { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+.evening-hist-content { flex: 1; }
+.evening-hist-time { font-size: 11px; color: var(--text-hint); margin-bottom: 3px; }
+.evening-hist-text { font-size: 14px; color: var(--text); line-height: 1.5; }
+.del-small-btn { padding: 4px 8px; border: 0.5px solid var(--border-med); border-radius: 6px; background: transparent; color: var(--text-hint); font-size: 11px; font-family: inherit; cursor: pointer; flex-shrink: 0; }
+.del-icon-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; font-size: 15px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.del-icon-btn:hover { background: #fff0f0; }
+
+.confirm-delete { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#fff0f0; border-top:0.5px solid #f5c4b3; }
+.confirm-text { font-size:12px; color:#c0392b; flex:1; }
+.confirm-yes { padding:4px 10px; border-radius:6px; border:none; background:#e84040; color:#fff; font-size:12px; font-family:inherit; cursor:pointer; }
+.confirm-no { padding:4px 10px; border-radius:6px; border:0.5px solid var(--border-med); background:transparent; color:var(--text-sec); font-size:12px; font-family:inherit; cursor:pointer; }
+
+
+/* History */
+.segment { display: flex; background: var(--border); border-radius: 9px; padding: 2px; margin-bottom: 16px; gap: 2px; }
+.seg-btn { flex: 1; padding: 7px; border-radius: 7px; border: none; background: transparent; font-size: 13px; font-family: inherit; font-weight: 500; color: var(--text-sec); cursor: pointer; transition: all 0.15s; }
+.seg-btn.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.history-day { margin-bottom: 20px; }
+.history-day-label { font-size: 12px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; padding: 0 2px; }
+.history-card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); margin-bottom: 8px; overflow: hidden; }
+.history-card-header { display: flex; align-items: center; padding: 12px 14px; gap: 8px; cursor: pointer; }
+.history-card-time { font-size: 12px; color: var(--text-hint); flex-shrink: 0; }
+.history-card-preview { font-size: 14px; color: var(--text-sec); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-card-body { padding: 0 14px 14px; display: none; }
+.history-card-body.open { display: block; }
+.history-row { margin-bottom: 10px; }
+.history-row:last-child { margin-bottom: 0; }
+.history-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-hint); margin-bottom: 2px; }
+.history-val { font-size: 14px; color: var(--text); line-height: 1.5; }
+.history-chevron { width: 16px; height: 16px; stroke: var(--text-hint); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; flex-shrink: 0; }
+.history-card-header.open .history-chevron { transform: rotate(180deg); }
+.history-emotion-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Export */
+.export-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-hint); margin-bottom: 8px; }
+.period-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.period-btn { padding: 7px 14px; border-radius: 20px; border: 0.5px solid var(--border-med); background: transparent; font-size: 13px; font-family: inherit; color: var(--text-sec); cursor: pointer; transition: all 0.15s; }
+.period-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.date-range-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+.date-range-row input[type=date] { flex: 1; font-size: 13px; padding: 8px 10px; }
+.date-range-row span { font-size: 13px; color: var(--text-hint); }
+.checklist { max-height: 220px; overflow-y: auto; border: 0.5px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
+.check-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); cursor: pointer; }
+.check-item:last-child { border-bottom: none; }
+.check-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.check-item-text { flex: 1; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.check-item-meta { font-size: 11px; color: var(--text-hint); flex-shrink: 0; }
+#export-preview { background: #fff; border-radius: var(--radius); border: 0.5px solid var(--border); padding: 20px; margin-top: 12px; }
+.export-header { text-align: center; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #eee; }
+.export-header h2 { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 2px; }
+.export-header p { font-size: 12px; color: #999; }
+.export-entry { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 0.5px solid #f0f0f0; }
+.export-entry:last-child { border-bottom: none; margin-bottom: 0; }
+.export-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.export-type-badge { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 20px; background: var(--accent-light); color: var(--accent-text); }
+.export-type-badge.evening { background: var(--star-light); color: #c07800; }
+.export-time-str { font-size: 11px; color: #aaa; }
+.export-field { margin-bottom: 6px; }
+.export-field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #aaa; margin-bottom: 1px; }
+.export-field-val { font-size: 13px; color: #222; line-height: 1.5; }
+
+/* Toast */
+#toast { position: fixed; top: calc(var(--safe-top) + 12px); left: 50%; transform: translateX(-50%) translateY(-80px); background: #1a1a1a; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 14px; z-index: 999; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1); white-space: nowrap; }
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Auth */
+#auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; }
+#auth-overlay.hidden { display: none; }
+.auth-icon { width: 64px; height: 64px; background: var(--accent-light); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.auth-icon svg { width: 32px; height: 32px; stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.auth-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.auth-sub { font-size: 15px; color: var(--text-sec); line-height: 1.5; margin-bottom: 28px; }
+
+/* Emotion picker */
+.emo-plus-btn { width: 42px; flex-shrink: 0; border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); background: var(--bg); font-size: 22px; color: var(--text-sec); cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+.emo-plus-btn:active { background: var(--accent-light); }
+.emo-picker { margin-top: 8px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
+.emo-picker-head { padding: 8px 11px; font-size: 11px; color: var(--text-sec); background: var(--bg); border-bottom: 0.5px solid var(--border); }
+.emo-cat { padding: 8px 11px 2px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-hint); }
+.emo-opts { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 11px 10px; }
+.emo-opt { font-size: 12px; padding: 5px 11px; border-radius: 20px; cursor: pointer; border: none; font-family: inherit; }
+.emo-opt.r { color: #993C1D; background: #FAECE7; }
+.emo-opt.a { color: #854F0B; background: #FAEEDA; }
+.emo-opt.b { color: #185FA5; background: #E6F1FB; }
+.emo-opt.g { color: #3B6D11; background: #EAF3DE; }
+.emo-opt.p { color: #3C3489; background: #EEEDFE; }
+
+/* Empty */
+.empty { text-align: center; padding: 48px 16px; color: var(--text-hint); }
+.empty-icon { font-size: 36px; margin-bottom: 10px; }
+.empty-text { font-size: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div id="auth-overlay">
+  <div class="auth-icon">
+    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+  </div>
+  <h1 class="auth-title">КПТ Щоденник</h1>
+  <p class="auth-sub">Підключіть Google Drive, щоб ваші записи зберігались і були доступні з будь-якого пристрою.</p>
+  <button class="btn btn-primary" onclick="signIn()">
+    <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+    Увійти через Google
+  </button>
+</div>
+
+<div id="app">
+  <div id="content">
+
+    <!-- DAY SCREEN -->
+    <div class="screen active" id="screen-day">
+      <div class="page-header">
+        <div class="page-title">📅 Вдень</div>
+        <div class="page-sub" id="day-date-label"></div>
+      </div>
+      <div id="day-entries-container"></div>
+      <button class="btn btn-ghost" onclick="addDayEntry()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Додати запис
+      </button>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- EVENING SCREEN -->
+    <div class="screen" id="screen-evening">
+      <div class="page-header">
+        <div class="page-title">⭐ Ввечері</div>
+        <div class="page-sub" id="evening-date-label"></div>
+      </div>
+      <div class="evening-badge">⭐ Сьогодні помітив</div>
+      <div class="card">
+        <div class="chip-row">
+          <button class="chip" onclick="insertPrompt('Сьогодні побачив: ')">👁 Побачив</button>
+          <button class="chip" onclick="insertPrompt('Сьогодні зробив: ')">✅ Зробив</button>
+          <button class="chip" onclick="insertPrompt('Здивувало: ')">😮 Здивувало</button>
+          <button class="chip" onclick="insertPrompt('Справило враження: ')">✨ Враження</button>
+          <button class="chip" onclick="insertPrompt('Було прикольно: ')">😄 Прикольно</button>
+        </div>
+        <div class="field">
+          <textarea id="evening-input" rows="5" placeholder="Напиши або натисни підказку вище..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="saveEvening()" style="margin-top:10px">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Зберегти
+        </button>
+      </div>
+      <div id="evening-history-container"></div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- HISTORY SCREEN -->
+    <div class="screen" id="screen-history">
+      <div class="page-header">
+        <div class="page-title">Історія</div>
+      </div>
+      <div class="segment">
+        <button class="seg-btn active" onclick="setHistoryTab('day')">Денні</button>
+        <button class="seg-btn" onclick="setHistoryTab('evening')">Вечірні</button>
+      </div>
+      <div id="history-container"></div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- EXPORT SCREEN -->
+    <div class="screen" id="screen-export">
+      <div class="page-header">
+        <div class="page-title">Звіт</div>
+        <div class="page-sub">Для терапевта</div>
+      </div>
+      <div class="card">
+        <div class="export-section-title">Швидкий вибір</div>
+        <div class="period-row">
+          <button class="period-btn active" onclick="setExportMode('quick',7,this)">7 днів</button>
+          <button class="period-btn" onclick="setExportMode('quick',14,this)">2 тижні</button>
+          <button class="period-btn" onclick="setExportMode('quick',30,this)">Місяць</button>
+        </div>
+
+        <div class="divider"></div>
+        <div class="export-section-title">Або вказати дати</div>
+        <div class="date-range-row">
+          <input type="date" id="date-from" onchange="setExportMode('range')">
+          <span>—</span>
+          <input type="date" id="date-to" onchange="setExportMode('range')">
+        </div>
+
+        <div class="divider"></div>
+        <div class="export-section-title">Або вибрати записи вручну</div>
+        <div class="checklist" id="checklist"></div>
+
+        <button class="btn btn-primary" onclick="buildExport()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Сформувати картинку
+        </button>
+      </div>
+      <div id="export-area"></div>
+      <div style="height:16px"></div>
+    </div>
+
+  </div>
+
+  <nav id="nav">
+    <button class="nav-btn active" onclick="showScreen('day')" id="nav-day">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      Вдень
+    </button>
+    <button class="nav-btn" onclick="showScreen('evening')" id="nav-evening">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      Ввечері
+    </button>
+    <button class="nav-btn" onclick="showScreen('history')" id="nav-history">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Історія
+    </button>
+    <button class="nav-btn" onclick="showScreen('export')" id="nav-export">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Звіт
+    </button>
+  </nav>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const CLIENT_ID = '72456888699-f6nfntvevb9kqjangn2c0kuvase9fdrd.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+const FILE_NAME = 'cbt-journal-data.json';
+
+let tokenClient = null;
+let accessToken = null;
+let fileId = null;
+let data = { dayEntries: [], eveningEntries: [] };
+let currentHistoryTab = 'day';
+let exportMode = 'quick';
+let exportDays = 7;
+let dayFormEntries = [];
+let entryCounter = 0;
+let dataLoaded = false;
+
+const EMOTION_COLORS = {
+  'trypoga': 'emo-red', 'strakh': 'emo-red'
+};
+
+const EMO_BG = {'emo-red':'#FAECE7','emo-orange':'#FAEEDA','emo-blue':'#E6F1FB','emo-green':'#EAF3DE','emo-purple':'#EEEDFE','emo-pink':'#FBEAF0','emo-gray':'#F1EFE8'};
+const EMO_BR = {'emo-red':'#F5C4B3','emo-orange':'#FAC775','emo-blue':'#B5D4F4','emo-green':'#C0DD97','emo-purple':'#CECBF6','emo-pink':'#F4C0D1','emo-gray':'#D3D1C7'};
+const EMO_TX = {'emo-red':'#4A1B0C','emo-orange':'#412402','emo-blue':'#042C53','emo-green':'#173404','emo-purple':'#26215C','emo-pink':'#4B1528','emo-gray':'#2C2C2A'};
+const EMO_DOT = {'emo-red':'#D85A30','emo-orange':'#BA7517','emo-blue':'#378ADD','emo-green':'#639922','emo-purple':'#534AB7','emo-pink':'#D4537E','emo-gray':'#888'};
+
+const EMOTION_MAP = [
+  [['trypoga','strakh','zlist','hniv','lyut','panika'], 'emo-red'],
+  [['rozdratuvannya','dratyvlyvist','napruga','stres'], 'emo-orange'],
+  [['smutok','sum','gore','depresiya','vichay','tuga','nudga','samotnis'], 'emo-blue'],
+  [['radist','shchastya','zadovolen','spokiy','vyachnist','gordist','nadiya'], 'emo-green'],
+  [['sorom','provyna','zbentezhen','niyakovist'], 'emo-pink'],
+  [['podуv','zdyvuvannya','interes','zakhoplennya','tsikavit'], 'emo-purple']
+];
+
+function emotionClass(emotion) {
+  if (!emotion) return 'emo-gray';
+  const lower = emotion.toLowerCase();
+  const translit = {
+    '\u0442\u0440\u0438\u0432\u043e\u0433': 'trypog', '\u0441\u0442\u0440\u0430\u0445': 'strakh', '\u0437\u043b\u0456\u0441\u0442': 'zlist', '\u0433\u043d\u0456\u0432': 'hniv', '\u043b\u044e\u0442': 'lyut', '\u043f\u0430\u043d\u0456\u043a': 'panika',
+    '\u0440\u043e\u0437\u0434\u0440\u0430\u0442': 'rozdrat', '\u0434\u0440\u0430\u0442': 'drat', '\u043d\u0430\u043f\u0440\u0443\u0433': 'naprug', '\u0441\u0442\u0440\u0435\u0441': 'stres',
+    '\u0441\u043c\u0443\u0442\u043e\u043a': 'smutok', '\u0441\u0443\u043c': 'sum', '\u0433\u043e\u0440\u0435': 'gore', '\u0434\u0435\u043f\u0440\u0435\u0441': 'depres', '\u0432\u0456\u0434\u0447\u0430\u0439': 'vichay', '\u0442\u0443\u0433': 'tuga', '\u043d\u0443\u0434\u044c\u0433': 'nudg', '\u0441\u0430\u043c\u043e\u0442': 'samot',
+    '\u0440\u0430\u0434\u0456\u0441\u0442': 'radist', '\u0449\u0430\u0441\u0442': 'shchast', '\u0437\u0430\u0434\u043e\u0432\u043e\u043b': 'zadovol', '\u0441\u043f\u043e\u043a\u0456\u0439': 'spokiy', '\u0432\u0434\u044f\u0447': 'vdyach', '\u0433\u043e\u0440\u0434': 'gord', '\u043d\u0430\u0434\u0456\u044f': 'nadiya',
+    '\u0441\u043e\u0440\u043e\u043c': 'sorom', '\u043f\u0440\u043e\u0432\u0438\u043d': 'provyn', '\u0437\u0431\u0435\u043d\u0442\u0435\u0436': 'zbentezh', '\u043d\u0456\u044f\u043a\u043e\u0432': 'niyakov',
+    '\u043f\u043e\u0434\u0438\u0432': 'podуv', '\u0437\u0434\u0438\u0432': 'zdyv', '\u0456\u043d\u0442\u0435\u0440\u0435\u0441': 'interes', '\u0437\u0430\u0445\u043e\u043f': 'zakhop', '\u0446\u0456\u043a\u0430\u0432': 'tsikav'
+  };
+  const emoToClass = {
+    'trypog': 'emo-red', 'strakh': 'emo-red', 'zlist': 'emo-red', 'hniv': 'emo-red', 'lyut': 'emo-red', 'panika': 'emo-red',
+    'rozdrat': 'emo-orange', 'drat': 'emo-orange', 'naprug': 'emo-orange', 'stres': 'emo-orange',
+    'smutok': 'emo-blue', 'sum': 'emo-blue', 'gore': 'emo-blue', 'depres': 'emo-blue', 'vichay': 'emo-blue', 'tuga': 'emo-blue', 'nudg': 'emo-blue', 'samot': 'emo-blue',
+    'radist': 'emo-green', 'shchast': 'emo-green', 'zadovol': 'emo-green', 'spokiy': 'emo-green', 'vdyach': 'emo-green', 'gord': 'emo-green', 'nadiya': 'emo-green',
+    'sorom': 'emo-pink', 'provyn': 'emo-pink', 'zbentezh': 'emo-pink', 'niyakov': 'emo-pink',
+    'podуv': 'emo-purple', 'zdyv': 'emo-purple', 'interes': 'emo-purple', 'zakhop': 'emo-purple', 'tsikav': 'emo-purple'
+  };
+  for (const [uk, tr] of Object.entries(translit)) {
+    if (lower.includes(uk)) return emoToClass[tr] || 'emo-gray';
+  }
+  return 'emo-gray';
+}
+
+window.onload = function() {
+  updateDateLabels();
+  setDefaultDates();
+  var s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client';
+  s.onload = initGoogleAuth;
+  document.head.appendChild(s);
+};
+
+function setDefaultDates() {
+  var today = new Date();
+  var weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  document.getElementById('date-to').value = today.toISOString().split('T')[0];
+  document.getElementById('date-from').value = weekAgo.toISOString().split('T')[0];
+}
+
+function initGoogleAuth() {
+  var saved = sessionStorage.getItem('gdr_token');
+  if (saved) { accessToken = saved; hideAuth(); loadData(); return; }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID, scope: SCOPES,
+    callback: function(resp) {
+      if (resp.error) { showToast('Помилка входу'); return; }
+      accessToken = resp.access_token;
+      sessionStorage.setItem('gdr_token', accessToken);
+      hideAuth(); loadData();
+    }
+  });
+}
+
+function signIn() { if (tokenClient) tokenClient.requestAccessToken(); else showToast('Завантаження...'); }
+function hideAuth() { document.getElementById('auth-overlay').classList.add('hidden'); }
+
+function formatDate(d) { return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }); }
+function formatTime(iso) { return new Date(iso).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }); }
+function formatDateTime(iso) {
+  var d = new Date(iso);
+  return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+}
+function formatDayKey(iso) { return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }); }
+function updateDateLabels() {
+  var t = formatDate(new Date());
+  document.getElementById('day-date-label').textContent = t;
+  document.getElementById('evening-date-label').textContent = t;
+}
+
+async function driveRequest(url, options) {
+  options = options || {};
+  var res = await fetch(url, Object.assign({}, options, { headers: Object.assign({ 'Authorization': 'Bearer ' + accessToken }, options.headers || {}) }));
+  if (!res.ok) throw new Error(await res.text());
+  return res;
+}
+
+async function loadData() {
+  try {
+    var res = await driveRequest('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)');
+    var json = await res.json();
+    var file = json.files.find(function(f) { return f.name === FILE_NAME; });
+    if (file) {
+      fileId = file.id;
+      var content = await driveRequest('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media');
+      var loaded = await content.json();
+      if (loaded && typeof loaded === 'object') {
+        data = { dayEntries: loaded.dayEntries || [], eveningEntries: loaded.eveningEntries || [] };
+      }
+    }
+    dataLoaded = true;
+    try { localStorage.setItem('cbt_backup', JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {}
+    if (dayFormEntries.length === 0) addDayEntry();
+    renderEveningHistory();
+    renderHistory();
+    renderChecklist();
+  } catch(e) {
+    showToast('Помилка завантаження');
+    // restore from local backup if Drive failed
+    try {
+      var b = localStorage.getItem('cbt_backup');
+      if (b) { var parsed = JSON.parse(b); if (parsed && parsed.data) { data = parsed.data; renderEveningHistory(); renderHistory(); renderChecklist(); } }
+    } catch(e2) {}
+  }
+}
+
+async function saveData() {
+  if (!dataLoaded) { showToast('Зачекайте, дані ще завантажуються'); return; }
+  try {
+    try { localStorage.setItem('cbt_backup', JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {}
+    var body = JSON.stringify(data);
+    if (fileId) {
+      await driveRequest('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body });
+    } else {
+      var meta = await driveRequest('https://www.googleapis.com/drive/v3/files', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'] }) });
+      var m = await meta.json(); fileId = m.id;
+      await driveRequest('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body });
+    }
+  } catch(e) { showToast('Помилка збереження'); }
+}
+
+function addDayEntry() {
+  var id = 'entry-' + (++entryCounter);
+  dayFormEntries.push({ id: id });
+  renderDayForms();
+  setTimeout(function() { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+}
+
+function renderDayForms() {
+  var c = document.getElementById('day-entries-container');
+  var html = '';
+  for (var i = 0; i < dayFormEntries.length; i++) {
+    var e = dayFormEntries[i];
+    html += '<div class="card" id="' + e.id + '">';
+    html += '<div class="entry-hdr"><div class="entry-hdr-left">';
+    html += '<span class="card-time-small" id="' + e.id + '-time"></span>';
+    html += '</div>';
+    if (dayFormEntries.length > 1) {
+      html += '<button class="del-entry-btn" onclick="removeDayEntry(\'' + e.id + '\')">&#x2715;</button>';
+    }
+    html += '</div>';
+    html += '<div class="field"><div class="field-label">Ситуація</div><textarea rows="2" id="' + e.id + '-sit" placeholder="Що сталось?"></textarea></div>';
+    html += '<div class="field"><div class="field-label">Думка</div><textarea rows="2" id="' + e.id + '-th" placeholder="Що подумав?"></textarea></div>';
+    html += '<div class="field"><div class="field-label">Емоція</div>';
+    html += '<div style="display:flex;gap:8px;align-items:stretch">';
+    html += '<textarea rows="1" id="' + e.id + '-em" placeholder="Що відчув?" style="flex:1"></textarea>';
+    html += '<button type="button" class="emo-plus-btn" onclick="toggleEmoPicker(\'' + e.id + '\')">+</button>';
+    html += '</div>';
+    html += '<div class="emo-picker" id="' + e.id + '-picker" style="display:none"></div>';
+    html += '</div>';
+    html += '<div class="divider"></div>';
+    html += '<div class="field"><div class="field-label">Альтернативна думка</div><textarea rows="2" id="' + e.id + '-alt" placeholder="Як ще можна подивитись на це?"></textarea></div>';
+    html += '<button class="btn btn-primary" onclick="saveDayEntry(\'' + e.id + '\')" style="margin-top:10px">';
+    html += '<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+    html += 'Зберегти</button></div>';
+  }
+  c.innerHTML = html;
+  for (var j = 0; j < dayFormEntries.length; j++) {
+    var el = document.getElementById(dayFormEntries[j].id + '-time');
+    if (el) el.textContent = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+  }
+}
+
+var EMO_GROUPS = [
+  { cat: 'Тривога / напруга', cls: 'r', items: ['Тривога','Страх','Паніка','Злість','Роздратування','Напруження','Стрес'] },
+  { cat: 'Сум', cls: 'b', items: ['Смуток','Сум','Виснаження','Самотність','Відчай','Туга'] },
+  { cat: 'Радість', cls: 'g', items: ['Радість','Спокій','Вдячність','Гордість','Надія','Задоволення'] },
+  { cat: 'Інше', cls: 'p', items: ['Подив','Сором','Провина','Збентеження','Інтерес'] }
+];
+
+function toggleEmoPicker(id) {
+  var picker = document.getElementById(id + '-picker');
+  if (!picker) return;
+  if (picker.style.display === 'block') { picker.style.display = 'none'; return; }
+  var html = '<div class="emo-picker-head">Натисни щоб додати, або впиши своє в поле</div>';
+  for (var g = 0; g < EMO_GROUPS.length; g++) {
+    html += '<div class="emo-cat">' + EMO_GROUPS[g].cat + '</div>';
+    html += '<div class="emo-opts">';
+    for (var i = 0; i < EMO_GROUPS[g].items.length; i++) {
+      var em = EMO_GROUPS[g].items[i];
+      html += '<button type="button" class="emo-opt ' + EMO_GROUPS[g].cls + '" onclick="addEmotion(\'' + id + '\',\'' + em + '\')">' + em + '</button>';
+    }
+    html += '</div>';
+  }
+  picker.innerHTML = html;
+  picker.style.display = 'block';
+}
+
+function addEmotion(id, emotion) {
+  var ta = document.getElementById(id + '-em');
+  if (!ta) return;
+  var current = ta.value.trim();
+  var parts = current ? current.split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+  if (parts.indexOf(emotion) !== -1) {
+    parts = parts.filter(function(p){ return p !== emotion; });
+  } else {
+    parts.push(emotion);
+  }
+  ta.value = parts.join(', ');
+}
+
+function removeDayEntry(id) { dayFormEntries = dayFormEntries.filter(function(e) { return e.id !== id; }); renderDayForms(); }
+
+async function saveDayEntry(id) {
+  var sit = document.getElementById(id + '-sit').value.trim();
+  var th = document.getElementById(id + '-th').value.trim();
+  var em = document.getElementById(id + '-em').value.trim();
+  var alt = document.getElementById(id + '-alt').value.trim();
+  if (!sit && !th && !em && !alt) { showToast('Заповніть хоча б одне поле'); return; }
+  var entry = { id: Date.now() + Math.random(), ts: new Date().toISOString(), situation: sit, thought: th, emotion: em, altThought: alt };
+  data.dayEntries.unshift(entry);
+  dayFormEntries = dayFormEntries.filter(function(e) { return e.id !== id; });
+  if (dayFormEntries.length === 0) addDayEntry(); else renderDayForms();
+  showToast('Збережено');
+  await saveData();
+  renderHistory();
+  renderChecklist();
+}
+
+async function deleteDayEntry(entryId) {
+  data.dayEntries = data.dayEntries.filter(function(e) { return String(e.id) !== String(entryId); });
+  await saveData();
+  renderHistory();
+  renderChecklist();
+  showToast('Запис видалено');
+}
+
+function insertPrompt(text) {
+  var ta = document.getElementById('evening-input');
+  var val = ta.value;
+  var needsNewline = val.length > 0 && val[val.length - 1] !== '\n';
+  ta.value = val + (needsNewline ? '\n' : '') + text;
+  ta.focus();
+}
+
+async function saveEvening() {
+  var text = document.getElementById('evening-input').value.trim();
+  if (!text) { showToast('Напишіть щось спочатку'); return; }
+  var entry = { id: Date.now(), ts: new Date().toISOString(), text: text };
+  data.eveningEntries.unshift(entry);
+  document.getElementById('evening-input').value = '';
+  showToast('Збережено');
+  await saveData();
+  renderEveningHistory();
+  renderHistory();
+}
+
+async function deleteEveningEntry(entryId) {
+  data.eveningEntries = data.eveningEntries.filter(function(e) { return String(e.id) !== String(entryId); });
+  await saveData();
+  renderEveningHistory();
+  renderHistory();
+  showToast('Запис видалено');
+}
+
+function renderEveningHistory() {
+  var c = document.getElementById('evening-history-container');
+  var entries = (data.eveningEntries || []).slice(0, 30);
+  if (!entries.length) { c.innerHTML = ''; return; }
+  var groups = {};
+  for (var i = 0; i < entries.length; i++) {
+    var key = formatDayKey(entries[i].ts);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(entries[i]);
+  }
+  var html = '<div style="height:4px"></div><div class="history-day-label" style="padding:0 2px;margin-bottom:8px">Попередні записи</div>';
+  var days = Object.keys(groups);
+  for (var d = 0; d < days.length; d++) {
+    var day = days[d];
+    html += '<div style="display:flex;align-items:center;gap:8px;margin:8px 0 6px">';
+    html += '<div style="flex:1;height:0.5px;background:var(--border)"></div>';
+    html += '<span style="font-size:11px;color:var(--text-hint);white-space:nowrap">' + day + '</span>';
+    html += '<div style="flex:1;height:0.5px;background:var(--border)"></div></div>';
+    var items = groups[day];
+    for (var k = 0; k < items.length; k++) {
+      var en = items[k];
+      html += '<div class="evening-hist" style="background:#fffdf5;border-color:#fac775">';
+      html += '<div class="evening-hist-content">';
+      html += '<div class="evening-hist-time">' + formatTime(en.ts) + '</div>';
+      html += '<div class="evening-hist-text">' + escHtml(en.text) + '</div>';
+      html += '</div>';
+      html += '<button class="del-icon-btn" data-type="evening" data-id="' + en.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+      html += '</div>';
+    }
+  }
+  c.innerHTML = html;
+}
+
+function setHistoryTab(tab) {
+  currentHistoryTab = tab;
+  var btns = document.querySelectorAll('.seg-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  if (tab === 'day') btns[0].classList.add('active'); else btns[1].classList.add('active');
+  renderHistory();
+}
+
+function renderHistory() {
+  var c = document.getElementById('history-container');
+  if (currentHistoryTab === 'day') {
+    var entries = data.dayEntries || [];
+    if (!entries.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">&#x1F4DD;</div><div class="empty-text">Ще немає записів.</div></div>'; return; }
+    var groups = {};
+    for (var i = 0; i < entries.length; i++) {
+      var key = formatDayKey(entries[i].ts);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(entries[i]);
+    }
+    var html = '';
+    var days = Object.keys(groups);
+    for (var d = 0; d < days.length; d++) {
+      html += '<div class="history-day"><div class="history-day-label">' + days[d] + '</div>';
+      var items = groups[days[d]];
+      for (var k = 0; k < items.length; k++) {
+        var e = items[k];
+        var emoClass = emotionClass(e.emotion);
+        var bg = EMO_BG[emoClass] || '#fff';
+        var br = EMO_BR[emoClass] || '#eee';
+        var dot = EMO_DOT[emoClass] || '#ccc';
+        html += '<div class="history-card" style="background:' + bg + ';border-color:' + br + '">';
+        html += '<div class="history-card-header" onclick="toggleHistCard(this)">';
+        html += '<span class="history-card-time">' + formatTime(e.ts) + '</span>';
+        if (e.emotion) html += '<div class="history-emotion-dot" style="background:' + dot + '"></div>';
+        html += '<span class="history-card-preview"><span style="font-size:10px;color:var(--text-hint);margin-right:3px">Ситуація:</span>' + escHtml(e.situation || e.thought || '—') + '</span>';
+        html += '<button class="del-icon-btn" data-type="day" data-id="' + e.id + '" onclick="event.stopPropagation();confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+        html += '<svg class="history-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
+        html += '</div>';
+        html += '<div class="history-card-body">';
+        if (e.thought) html += '<div class="history-row"><div class="history-tag">Думка</div><div class="history-val">' + escHtml(e.thought) + '</div></div>';
+        if (e.emotion) html += '<div class="history-row"><div class="history-tag">Емоція</div><div class="history-val">' + escHtml(e.emotion) + '</div></div>';
+        if (e.altThought) html += '<div class="history-row"><div class="history-tag">Альтернативна думка</div><div class="history-val">' + escHtml(e.altThought) + '</div></div>';
+        html += '</div></div>';
+      }
+      html += '</div>';
+    }
+    c.innerHTML = html;
+  } else {
+    var evEntries = data.eveningEntries || [];
+    if (!evEntries.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">&#x2B50;</div><div class="empty-text">Ще немає вечірніх записів.</div></div>'; return; }
+    var evHtml = '';
+    for (var ei = 0; ei < evEntries.length; ei++) {
+      var ev = evEntries[ei];
+      evHtml += '<div class="evening-hist">';
+      evHtml += '<div class="evening-hist-content">';
+      evHtml += '<div class="evening-hist-time">' + formatDateTime(ev.ts) + '</div>';
+      evHtml += '<div class="evening-hist-text">' + escHtml(ev.text) + '</div>';
+      evHtml += '</div>';
+      evHtml += '<button class="del-icon-btn" data-type="evening" data-id="' + ev.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+      evHtml += '</div>';
+    }
+    c.innerHTML = evHtml;
+  }
+}
+
+function toggleHistCard(header) {
+  var body = header.nextElementSibling;
+  var open = body.classList.toggle('open');
+  header.classList.toggle('open', open);
+}
+
+function confirmDeleteBtn(btn) {
+  confirmDelete(btn, btn.dataset.type, btn.dataset.id);
+}
+
+function confirmDelete(btn, type, id) {
+  var card = btn.closest('.history-card, .evening-hist');
+  if (!card) return;
+  var existing = card.querySelector('.confirm-delete');
+  if (existing) { existing.remove(); return; }
+  var bar = document.createElement('div');
+  bar.className = 'confirm-delete';
+  bar.innerHTML = '<span class="confirm-text">Видалити цей запис?</span><button class="confirm-no" onclick="this.parentElement.remove()">Скасувати</button><button class="confirm-yes">Видалити</button>';
+  bar.querySelector('.confirm-yes').onclick = function() {
+    if (type === 'day') deleteDayEntry(id); else deleteEveningEntry(id);
+  };
+  card.appendChild(bar);
+}
+
+function setExportMode(mode, days, btn) {
+  exportMode = mode;
+  if (mode === 'quick') {
+    exportDays = days;
+    var btns = document.querySelectorAll('.period-btn');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+    if (btn) btn.classList.add('active');
+  } else {
+    var btns2 = document.querySelectorAll('.period-btn');
+    for (var j = 0; j < btns2.length; j++) btns2[j].classList.remove('active');
+  }
+}
+
+function renderChecklist() {
+  var c = document.getElementById('checklist');
+  if (!c) return;
+  var all = [];
+  for (var i = 0; i < (data.dayEntries || []).length; i++) all.push(Object.assign({}, data.dayEntries[i], { type: 'day' }));
+  for (var j = 0; j < (data.eveningEntries || []).length; j++) all.push(Object.assign({}, data.eveningEntries[j], { type: 'evening' }));
+  all.sort(function(a, b) { return new Date(b.ts) - new Date(a.ts); });
+  if (!all.length) { c.innerHTML = '<div style="padding:12px;font-size:13px;color:var(--text-hint);text-align:center">Немає записів</div>'; return; }
+  var html = '';
+  for (var k = 0; k < all.length; k++) {
+    var e = all[k];
+    html += '<label class="check-item">';
+    html += '<input type="checkbox" value="' + e.id + '" data-type="' + e.type + '">';
+    html += '<span class="check-item-text">' + (e.type === 'evening' ? '&#x2B50; ' : '') + escHtml(e.situation || e.thought || e.text || '—') + '</span>';
+    html += '<span class="check-item-meta">' + formatDateTime(e.ts) + '</span>';
+    html += '</label>';
+  }
+  c.innerHTML = html;
+}
+
+function buildExport() {
+  var dayEntries = [], eveningEntries = [];
+  if (exportMode === 'quick') {
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - exportDays);
+    dayEntries = (data.dayEntries || []).filter(function(e) { return new Date(e.ts) >= cutoff; });
+    eveningEntries = (data.eveningEntries || []).filter(function(e) { return new Date(e.ts) >= cutoff; });
+  } else if (exportMode === 'range') {
+    var from = new Date(document.getElementById('date-from').value);
+    var to = new Date(document.getElementById('date-to').value); to.setHours(23,59,59);
+    dayEntries = (data.dayEntries || []).filter(function(e) { var d = new Date(e.ts); return d >= from && d <= to; });
+    eveningEntries = (data.eveningEntries || []).filter(function(e) { var d = new Date(e.ts); return d >= from && d <= to; });
+  } else {
+    var checked = document.querySelectorAll('#checklist input[type=checkbox]:checked');
+    for (var ci = 0; ci < checked.length; ci++) {
+      var cb = checked[ci];
+      if (cb.dataset.type === 'day') {
+        var de = data.dayEntries.find(function(x) { return String(x.id) === cb.value; });
+        if (de) dayEntries.push(de);
+      } else {
+        var ee = data.eveningEntries.find(function(x) { return String(x.id) === cb.value; });
+        if (ee) eveningEntries.push(ee);
+      }
+    }
+  }
+  if (!dayEntries.length && !eveningEntries.length) { showToast('Немає записів для звіту'); return; }
+  window._exportDay = dayEntries; window._exportEve = eveningEntries; window._exportLabel = null;
+  var periodLabel = exportMode === 'quick' ? ('Останні ' + exportDays + ' днів') : exportMode === 'range' ? (document.getElementById('date-from').value + ' — ' + document.getElementById('date-to').value) : 'Вибрані записи';
+  window._exportLabel = periodLabel;
+  var dayHtml = '';
+  for (var di = 0; di < dayEntries.length; di++) {
+    var de2 = dayEntries[di];
+    var emoClass = emotionClass(de2.emotion);
+    var bg = EMO_BG[emoClass] || '#fff';
+    var br = EMO_BR[emoClass] || '#eee';
+    var tx = EMO_TX[emoClass] || '#222';
+    dayHtml += '<div class="export-entry" style="background:' + bg + ';border-color:' + br + '">';
+    dayHtml += '<div class="export-meta"><span class="export-type-badge">Денний</span><span class="export-time-str">' + formatDateTime(de2.ts) + '</span></div>';
+    if (de2.situation) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Ситуація</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.situation) + '</div></div>';
+    if (de2.thought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.thought) + '</div></div>';
+    if (de2.emotion) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Емоція</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.emotion) + '</div></div>';
+    if (de2.altThought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.6">Альтернативна думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.altThought) + '</div></div>';
+    dayHtml += '</div>';
+  }
+  var evenHtml = '';
+  for (var ei2 = 0; ei2 < eveningEntries.length; ei2++) {
+    var ev2 = eveningEntries[ei2];
+    evenHtml += '<div class="export-entry" style="background:#fffdf5;border-color:#fac775">';
+    evenHtml += '<div class="export-meta"><span class="export-type-badge evening">&#x2B50; Вечірній</span><span class="export-time-str">' + formatDateTime(ev2.ts) + '</span></div>';
+    evenHtml += '<div class="export-field"><div class="export-field-val">' + escHtml(ev2.text) + '</div></div>';
+    evenHtml += '</div>';
+  }
+  var exportHTML = '<div id="export-preview">';
+  exportHTML += '<div class="export-header"><h2>КПТ Щоденник</h2><p>' + periodLabel + '</p></div>';
+  exportHTML += dayHtml + evenHtml + '</div>';
+  exportHTML += '<div style="display:flex;gap:8px;margin-top:12px">';
+  exportHTML += '<button class="btn btn-primary" onclick="copyExportText()" style="flex:1;background:var(--bg);border:0.5px solid var(--border-med);color:var(--text-sec)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Скопіювати</button>';
+  exportHTML += '<button class="btn btn-primary" onclick="saveAsPDF()" style="flex:1"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF</button>';
+  exportHTML += '</div>';
+  document.getElementById('export-area').innerHTML = exportHTML;
+  document.getElementById('export-area').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyExportText() {
+  var dayE = window._exportDay || [];
+  var eveE = window._exportEve || [];
+  if (!dayE.length && !eveE.length) { showToast('Немає записів'); return; }
+  var text = 'КПТ Щоденник';
+  if (window._exportLabel) text += '  ·  ' + window._exportLabel;
+  text += '\n\n';
+  for (var i = 0; i < dayE.length; i++) {
+    var e = dayE[i];
+    text += '\u25C9 Денний  ·  ' + formatDateTime(e.ts) + '\n\n';
+    if (e.situation) text += 'Ситуація\n' + e.situation + '\n\n';
+    if (e.thought) text += 'Думка\n' + e.thought + '\n\n';
+    if (e.emotion) text += 'Емоція\n' + e.emotion + '\n\n';
+    if (e.altThought) text += 'Альтернативна думка\n' + e.altThought + '\n\n';
+    text += '\u00A0\n';
+  }
+  for (var k = 0; k < eveE.length; k++) {
+    var ev = eveE[k];
+    text += '\u25C9 Вечірній  ·  ' + formatDateTime(ev.ts) + '\n\n';
+    text += ev.text + '\n\n';
+    text += '\u00A0\n';
+  }
+  navigator.clipboard.writeText(text.trim()).then(function() { showToast('Скопійовано'); }).catch(function() { showToast('Помилка копіювання'); });
+}
+
+function saveAsPDF() {
+  var el = document.getElementById('export-preview');
+  if (!el) return;
+  var needed = [];
+  if (typeof html2canvas === 'undefined') needed.push('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  if (typeof window.jspdf === 'undefined') needed.push('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  if (!needed.length) { doPDF(el); return; }
+  showToast('Завантаження...');
+  var loaded = 0;
+  for (var i = 0; i < needed.length; i++) {
+    var s = document.createElement('script');
+    s.src = needed[i];
+    s.onload = function() { loaded++; if (loaded === needed.length) doPDF(el); };
+    document.head.appendChild(s);
+  }
+}
+
+function doPDF(el) {
+  showToast('Формую PDF...');
+  html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
+    var jsPDF = window.jspdf.jsPDF;
+    var pdf = new jsPDF('p', 'mm', 'a4');
+    var pw = pdf.internal.pageSize.getWidth();
+    var ph = pdf.internal.pageSize.getHeight();
+    var margin = 10;
+    var imgW = pw - margin * 2;
+    var imgH = canvas.height * imgW / canvas.width;
+    var img = canvas.toDataURL('image/jpeg', 0.92);
+    var y = margin;
+    var remaining = imgH;
+    if (imgH <= ph - margin * 2) {
+      pdf.addImage(img, 'JPEG', margin, y, imgW, imgH);
+    } else {
+      // split across pages
+      var pageContentH = ph - margin * 2;
+      var srcPageH = pageContentH * canvas.width / imgW;
+      var rendered = 0;
+      while (rendered < canvas.height) {
+        var sliceH = Math.min(srcPageH, canvas.height - rendered);
+        var pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sliceH;
+        var ctx = pageCanvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        ctx.drawImage(canvas, 0, rendered, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        var pageImg = pageCanvas.toDataURL('image/jpeg', 0.92);
+        var pageImgH = sliceH * imgW / canvas.width;
+        if (rendered > 0) pdf.addPage();
+        pdf.addImage(pageImg, 'JPEG', margin, margin, imgW, pageImgH);
+        rendered += sliceH;
+      }
+    }
+    pdf.save('кпт-щоденник.pdf');
+    showToast('PDF збережено');
+  }).catch(function() { showToast('Помилка PDF'); });
+}
+
+function showScreen(name) {
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+  var navBtns = document.querySelectorAll('.nav-btn');
+  for (var j = 0; j < navBtns.length; j++) navBtns[j].classList.remove('active');
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  document.getElementById('content').scrollTop = 0;
+  if (name === 'history') renderHistory();
+  if (name === 'export') renderChecklist();
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+}
+
+var toastTimer;
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+</script>
+</body>
+</html>
