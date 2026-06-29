@@ -302,8 +302,8 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
         <div class="checklist" id="checklist"></div>
 
         <button class="btn btn-primary" onclick="buildExport()">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          Сформувати картинку
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+          Сформувати звіт
         </button>
       </div>
       <div id="export-area"></div>
@@ -846,27 +846,25 @@ function copyExportText() {
   var dayE = window._exportDay || [];
   var eveE = window._exportEve || [];
   if (!dayE.length && !eveE.length) { showToast('Немає записів'); return; }
-  var line = '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501';
-  var sep = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
-  var text = 'КПТ ЩОДЕННИК\n';
-  if (window._exportLabel) text += window._exportLabel + '\n';
-  text += line + '\n\n';
+  var text = 'КПТ Щоденник';
+  if (window._exportLabel) text += '  ·  ' + window._exportLabel;
+  text += '\n\n';
   for (var i = 0; i < dayE.length; i++) {
     var e = dayE[i];
-    text += '\uD83D\uDCC4 ДЕННИЙ \u00B7 ' + formatDateTime(e.ts) + '\n\n';
-    if (e.situation) text += 'СИТУАЦІЯ\n' + e.situation + '\n\n';
-    if (e.thought) text += 'ДУМКА\n' + e.thought + '\n\n';
-    if (e.emotion) text += 'ЕМОЦІЯ\n' + e.emotion + '\n\n';
-    if (e.altThought) text += 'АЛЬТЕРНАТИВНА ДУМКА\n' + e.altThought + '\n\n';
-    text += sep + '\n\n';
+    text += '\u25C9 Денний  ·  ' + formatDateTime(e.ts) + '\n\n';
+    if (e.situation) text += 'Ситуація\n' + e.situation + '\n\n';
+    if (e.thought) text += 'Думка\n' + e.thought + '\n\n';
+    if (e.emotion) text += 'Емоція\n' + e.emotion + '\n\n';
+    if (e.altThought) text += 'Альтернативна думка\n' + e.altThought + '\n\n';
+    text += '\u00A0\n';
   }
   for (var k = 0; k < eveE.length; k++) {
     var ev = eveE[k];
-    text += '\u2B50 ВЕЧІРНІЙ \u00B7 ' + formatDateTime(ev.ts) + '\n\n';
-    text += '  ' + ev.text + '\n\n';
-    text += sep + '\n\n';
+    text += '\u25C9 Вечірній  ·  ' + formatDateTime(ev.ts) + '\n\n';
+    text += ev.text + '\n\n';
+    text += '\u00A0\n';
   }
-  navigator.clipboard.writeText(text).then(function() { showToast('Скопійовано'); }).catch(function() { showToast('Помилка копіювання'); });
+  navigator.clipboard.writeText(text.trim()).then(function() { showToast('Скопійовано'); }).catch(function() { showToast('Помилка копіювання'); });
 }
 
 function saveAsPDF() {
