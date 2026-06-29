@@ -177,6 +177,19 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 .export-emo-pills { display: flex; flex-wrap: wrap; gap: 5px; }
 .export-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
 
+/* Edit button & modal */
+.edit-entry-btn { margin-top: 10px; width: 100%; padding: 9px; border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-sec); font-size: 13px; font-family: inherit; cursor: pointer; }
+.edit-entry-btn:active { background: var(--bg); }
+.edit-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+.edit-overlay.show { display: flex; }
+.edit-sheet { background: var(--surface); width: 100%; max-width: 600px; border-radius: 18px 18px 0 0; padding: 20px 16px calc(20px + var(--safe-bottom)); max-height: 88vh; overflow-y: auto; animation: sheetUp 0.25s ease; }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.edit-sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.edit-close { border: none; background: none; font-size: 18px; color: var(--text-hint); cursor: pointer; padding: 4px; }
+.edit-actions { display: flex; gap: 8px; margin-top: 16px; }
+.edit-cancel { flex: 1; background: var(--bg); border: 0.5px solid var(--border-med); color: var(--text-sec); }
+.edit-actions .btn-primary { flex: 1; }
+
 /* Toast */
 #toast { position: fixed; top: calc(var(--safe-top) + 12px); left: 50%; transform: translateX(-50%) translateY(-80px); background: #1a1a1a; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 14px; z-index: 999; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1); white-space: nowrap; }
 #toast.show { transform: translateX(-50%) translateY(0); }
@@ -337,6 +350,19 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
   </nav>
 </div>
 
+<div id="edit-modal" class="edit-overlay">
+  <div class="edit-sheet">
+    <div class="edit-sheet-header">
+      <span id="edit-modal-title">Редагувати запис</span>
+      <button class="edit-close" onclick="closeEditModal()">&#x2715;</button>
+    </div>
+    <div id="edit-modal-body"></div>
+    <div class="edit-actions">
+      <button class="btn edit-cancel" onclick="closeEditModal()">Скасувати</button>
+      <button class="btn btn-primary" id="edit-save-btn">Зберегти</button>
+    </div>
+  </div>
+</div>
 <div id="toast"></div>
 
 <script>
@@ -440,6 +466,11 @@ function formatDateTime(iso) {
   return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
 }
 function formatDayKey(iso) { return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }); }
+function isToday(iso) {
+  var d = new Date(iso);
+  var now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+}
 function updateDateLabels() {
   var t = formatDate(new Date());
   document.getElementById('day-date-label').textContent = t;
@@ -631,6 +662,65 @@ async function deleteEveningEntry(entryId) {
   showToast('Запис видалено');
 }
 
+function editDayEntry(entryId) {
+  var e = (data.dayEntries || []).find(function(x) { return String(x.id) === String(entryId); });
+  if (!e) return;
+  if (!isToday(e.ts)) { showToast('Редагувати можна лише сьогоднішні записи'); return; }
+  var ov = document.getElementById('edit-modal');
+  document.getElementById('edit-modal-title').textContent = 'Редагувати запис';
+  var body = '<div class="field"><div class="field-label">Ситуація</div><textarea rows="2" id="edit-sit">' + escAttr(e.situation) + '</textarea></div>';
+  body += '<div class="field"><div class="field-label">Думка</div><textarea rows="2" id="edit-th">' + escAttr(e.thought) + '</textarea></div>';
+  body += '<div class="field"><div class="field-label">Емоція</div><textarea rows="1" id="edit-em">' + escAttr(e.emotion) + '</textarea></div>';
+  body += '<div class="field"><div class="field-label">Альтернативна думка</div><textarea rows="2" id="edit-alt">' + escAttr(e.altThought) + '</textarea></div>';
+  document.getElementById('edit-modal-body').innerHTML = body;
+  document.getElementById('edit-save-btn').onclick = function() { saveDayEdit(entryId); };
+  ov.classList.add('show');
+}
+
+async function saveDayEdit(entryId) {
+  var e = (data.dayEntries || []).find(function(x) { return String(x.id) === String(entryId); });
+  if (!e) return;
+  e.situation = document.getElementById('edit-sit').value.trim();
+  e.thought = document.getElementById('edit-th').value.trim();
+  e.emotion = document.getElementById('edit-em').value.trim();
+  e.altThought = document.getElementById('edit-alt').value.trim();
+  closeEditModal();
+  await saveData();
+  renderHistory();
+  renderChecklist();
+  showToast('Збережено');
+}
+
+function editEveningEntry(entryId) {
+  var e = (data.eveningEntries || []).find(function(x) { return String(x.id) === String(entryId); });
+  if (!e) return;
+  if (!isToday(e.ts)) { showToast('Редагувати можна лише сьогоднішні записи'); return; }
+  document.getElementById('edit-modal-title').textContent = 'Редагувати вечірній запис';
+  document.getElementById('edit-modal-body').innerHTML = '<div class="field"><div class="field-label">Запис</div><textarea rows="5" id="edit-eve">' + escAttr(e.text) + '</textarea></div>';
+  document.getElementById('edit-save-btn').onclick = function() { saveEveningEdit(entryId); };
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+async function saveEveningEdit(entryId) {
+  var e = (data.eveningEntries || []).find(function(x) { return String(x.id) === String(entryId); });
+  if (!e) return;
+  e.text = document.getElementById('edit-eve').value.trim();
+  closeEditModal();
+  await saveData();
+  renderEveningHistory();
+  renderHistory();
+  showToast('Збережено');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('show');
+}
+
+function escAttr(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function renderEveningHistory() {
   var c = document.getElementById('evening-history-container');
   var entries = (data.eveningEntries || []).slice(0, 30);
@@ -703,9 +793,11 @@ function renderHistory() {
         html += '<svg class="history-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
         html += '</div>';
         html += '<div class="history-card-body">';
+        if (e.situation) html += '<div class="history-row"><div class="history-tag">Ситуація</div><div class="history-val">' + escHtml(e.situation) + '</div></div>';
         if (e.thought) html += '<div class="history-row"><div class="history-tag">Думка</div><div class="history-val">' + escHtml(e.thought) + '</div></div>';
         if (e.emotion) html += '<div class="history-row"><div class="history-tag">Емоція</div><div class="history-val">' + escHtml(e.emotion) + '</div></div>';
         if (e.altThought) html += '<div class="history-row"><div class="history-tag">Альтернативна думка</div><div class="history-val">' + escHtml(e.altThought) + '</div></div>';
+        if (isToday(e.ts)) html += '<button class="edit-entry-btn" onclick="event.stopPropagation();editDayEntry(\'' + e.id + '\')">&#x270E; Редагувати</button>';
         html += '</div></div>';
       }
       html += '</div>';
@@ -721,6 +813,7 @@ function renderHistory() {
       evHtml += '<div class="evening-hist-content">';
       evHtml += '<div class="evening-hist-time">' + formatDateTime(ev.ts) + '</div>';
       evHtml += '<div class="evening-hist-text">' + escHtml(ev.text) + '</div>';
+      if (isToday(ev.ts)) evHtml += '<button class="edit-entry-btn" style="margin-top:8px" onclick="editEveningEntry(\'' + ev.id + '\')">&#x270E; Редагувати</button>';
       evHtml += '</div>';
       evHtml += '<button class="del-icon-btn" data-type="evening" data-id="' + ev.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
       evHtml += '</div>';
