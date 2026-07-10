@@ -1002,43 +1002,69 @@ function saveAsPDF() {
 
 function doPDF(el) {
   showToast('Формую PDF...');
-  html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
-    var jsPDF = window.jspdf.jsPDF;
-    var pdf = new jsPDF('p', 'mm', 'a4');
-    var pw = pdf.internal.pageSize.getWidth();
-    var ph = pdf.internal.pageSize.getHeight();
-    var margin = 10;
-    var imgW = pw - margin * 2;
-    var imgH = canvas.height * imgW / canvas.width;
-    var img = canvas.toDataURL('image/jpeg', 0.92);
-    var y = margin;
-    var remaining = imgH;
-    if (imgH <= ph - margin * 2) {
-      pdf.addImage(img, 'JPEG', margin, y, imgW, imgH);
-    } else {
-      // split across pages
-      var pageContentH = ph - margin * 2;
-      var srcPageH = pageContentH * canvas.width / imgW;
-      var rendered = 0;
-      while (rendered < canvas.height) {
-        var sliceH = Math.min(srcPageH, canvas.height - rendered);
-        var pageCanvas = document.createElement('canvas');
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = sliceH;
-        var ctx = pageCanvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-        ctx.drawImage(canvas, 0, rendered, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
-        var pageImg = pageCanvas.toDataURL('image/jpeg', 0.92);
-        var pageImgH = sliceH * imgW / canvas.width;
-        if (rendered > 0) pdf.addPage();
-        pdf.addImage(pageImg, 'JPEG', margin, margin, imgW, pageImgH);
-        rendered += sliceH;
-      }
+  var jsPDF = window.jspdf.jsPDF;
+  var pdf = new jsPDF('p', 'mm', 'a4');
+  var pw = pdf.internal.pageSize.getWidth();
+  var ph = pdf.internal.pageSize.getHeight();
+  var margin = 10;
+  var contentW = pw - margin * 2;
+  var maxH = ph - margin * 2;
+  var y = margin;
+
+  // Collect blocks: header, section titles, and each entry — render each separately
+  var blocks = [];
+  var header = el.querySelector('.export-header');
+  if (header) blocks.push(header);
+  var kids = el.children;
+  for (var i = 0; i < kids.length; i++) {
+    var node = kids[i];
+    if (node.classList.contains('export-header')) continue;
+    if (node.classList.contains('export-section-title') || node.classList.contains('export-entry')) {
+      blocks.push(node);
     }
-    pdf.save('кпт-щоденник.pdf');
-    showToast('PDF збережено');
-  }).catch(function() { showToast('Помилка PDF'); });
+  }
+
+  var idx = 0;
+  function next() {
+    if (idx >= blocks.length) {
+      pdf.save('кпт-щоденник.pdf');
+      showToast('PDF збережено');
+      return;
+    }
+    var block = blocks[idx];
+    html2canvas(block, { scale: 2, backgroundColor: null, useCORS: true }).then(function(canvas) {
+      var h = canvas.height * contentW / canvas.width;
+      // if block doesn't fit on remaining space, new page
+      if (y + h > margin + maxH && y > margin) {
+        pdf.addPage();
+        y = margin;
+      }
+      // if a single block is taller than a full page, it still has to be split — rare
+      if (h > maxH) {
+        var rendered = 0;
+        var srcPageH = maxH * canvas.width / contentW;
+        while (rendered < canvas.height) {
+          var sliceH = Math.min(srcPageH, canvas.height - rendered);
+          var pc = document.createElement('canvas');
+          pc.width = canvas.width; pc.height = sliceH;
+          var ctx = pc.getContext('2d');
+          ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, pc.width, pc.height);
+          ctx.drawImage(canvas, 0, rendered, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+          var ph2 = sliceH * contentW / canvas.width;
+          if (rendered > 0) { pdf.addPage(); y = margin; }
+          pdf.addImage(pc.toDataURL('image/jpeg', 0.92), 'JPEG', margin, y, contentW, ph2);
+          y += ph2;
+          rendered += sliceH;
+        }
+      } else {
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, y, contentW, h);
+        y += h + 3;
+      }
+      idx++;
+      next();
+    }).catch(function() { showToast('Помилка PDF'); });
+  }
+  next();
 }
 
 function showScreen(name) {
