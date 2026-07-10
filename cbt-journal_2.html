@@ -1032,7 +1032,7 @@ function doPDF(el) {
       return;
     }
     var block = blocks[idx];
-    html2canvas(block, { scale: 2, backgroundColor: null, useCORS: true }).then(function(canvas) {
+    html2canvas(block, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
       var h = canvas.height * contentW / canvas.width;
       // if block doesn't fit on remaining space, new page
       if (y + h > margin + maxH && y > margin) {
