@@ -44,7 +44,24 @@ html, body { height: 100%; background: var(--bg); font-family: -apple-system, Bl
 
 /* Header */
 .page-header { padding: 16px 0 8px; }
-.page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 9px; }
+.title-icon { width: 26px; height: 26px; flex-shrink: 0; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.title-icon.sun { stroke: #E8A33D; }
+.title-icon.star { stroke: #E8A33D; fill: #FAC775; stroke-width: 1.4; }
+.save-status { display: none; align-items: center; gap: 6px; border-radius: var(--radius-sm); padding: 7px 11px; font-size: 12px; margin-bottom: 12px; }
+.save-status.show { display: flex; }
+.save-status.ok { background: #EAF3DE; color: #3B6D11; }
+.save-status.pending { background: #FAEEDA; color: #854F0B; }
+.save-status.err { background: #FCEBEB; color: #A32D2D; }
+.save-status svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.nosit-chip { display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; padding: 5px 11px; border: 0.5px solid var(--border-med); border-radius: 20px; background: transparent; color: var(--text-sec); font-size: 12px; font-family: inherit; cursor: pointer; }
+.nosit-chip.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
+.nosit-note { font-size: 13px; color: var(--text-hint); font-style: italic; }
+.safety-card { margin-top: 12px; }
+.safety-head { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.safety-head svg { width: 18px; height: 18px; fill: none; stroke: #639922; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.safety-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-sec); padding: 7px 0; border-top: 0.5px solid var(--border); }
+.safety-row span:last-child { color: var(--text); }
 .page-sub { font-size: 13px; color: var(--text-sec); margin-top: 2px; }
 
 /* Cards */
@@ -110,18 +127,21 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 .evening-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--star-light); border-radius: 20px; padding: 4px 10px; font-size: 12px; color: #c07800; font-weight: 500; margin-bottom: 12px; }
 
 /* Evening history */
-.evening-hist { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
-.evening-hist-content { flex: 1; }
+.evening-hist { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); margin-bottom: 8px; overflow: hidden; }
+.evening-hist-row { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; }
+.evening-hist-content { flex: 1; min-width: 0; }
 .evening-hist-time { font-size: 11px; color: var(--text-hint); margin-bottom: 3px; }
 .evening-hist-text { font-size: 14px; color: var(--text); line-height: 1.5; }
 .del-small-btn { padding: 4px 8px; border: 0.5px solid var(--border-med); border-radius: 6px; background: transparent; color: var(--text-hint); font-size: 11px; font-family: inherit; cursor: pointer; flex-shrink: 0; }
-.del-icon-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; font-size: 15px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.del-icon-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s; padding: 0; }
+.del-icon-btn svg { width: 16px; height: 16px; fill: none; stroke: var(--text-hint); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .del-icon-btn:hover { background: #fff0f0; }
+.del-icon-btn:hover svg { stroke: #c0392b; }
 
-.confirm-delete { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#fff0f0; border-top:0.5px solid #f5c4b3; }
-.confirm-text { font-size:12px; color:#c0392b; flex:1; }
-.confirm-yes { padding:4px 10px; border-radius:6px; border:none; background:#e84040; color:#fff; font-size:12px; font-family:inherit; cursor:pointer; }
-.confirm-no { padding:4px 10px; border-radius:6px; border:0.5px solid var(--border-med); background:transparent; color:var(--text-sec); font-size:12px; font-family:inherit; cursor:pointer; }
+.confirm-delete { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #FCEBEB; border-top: 0.5px solid #F09595; flex-wrap: nowrap; width: 100%; box-sizing: border-box; }
+.confirm-text { font-size: 13px; color: #A32D2D; flex: 1; min-width: 0; }
+.confirm-yes { padding: 6px 12px; border-radius: 6px; border: none; background: #E24B4A; color: #fff; font-size: 13px; font-family: inherit; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+.confirm-no { padding: 6px 12px; border-radius: 6px; border: 0.5px solid var(--border-med); background: var(--surface); color: var(--text-sec); font-size: 13px; font-family: inherit; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
 
 
 /* History */
@@ -164,6 +184,12 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
 .export-header p { font-size: 12px; color: #999; }
 .export-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #b0b0b0; margin: 18px 0 10px 2px; }
 .export-entry { border-radius: 12px; padding: 14px 15px; margin-bottom: 12px; }
+.export-day-head { font-size: 13px; font-weight: 600; color: #444441; margin: 18px 0 8px 2px; padding-bottom: 5px; border-bottom: 0.5px solid #ddd; }
+.export-day-head:first-child { margin-top: 4px; }
+.mode-sec { opacity: 0.45; transition: opacity 0.15s; }
+.mode-sec.active { opacity: 1; }
+.mode-sec.active .export-section-title::after { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-left: 6px; vertical-align: middle; }
+.range-label { font-size: 12px; color: var(--text-sec); margin-top: 7px; }
 .export-entry.eve { background: #FFFBF0; border: 0.5px solid #F5DFA8; }
 .export-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
 .export-type-badge { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 20px; background: #E6F1FB; color: #185FA5; }
@@ -242,24 +268,21 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
     <!-- DAY SCREEN -->
     <div class="screen active" id="screen-day">
       <div class="page-header">
-        <div class="page-title">📅 Вдень</div>
+        <div class="page-title"><svg class="title-icon sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="4.2" y1="4.2" x2="6" y2="6"/><line x1="18" y1="18" x2="19.8" y2="19.8"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/><line x1="4.2" y1="19.8" x2="6" y2="18"/><line x1="18" y1="6" x2="19.8" y2="4.2"/></svg>Вдень</div>
         <div class="page-sub" id="day-date-label"></div>
       </div>
+      <div id="save-status" class="save-status"></div>
       <div id="day-entries-container"></div>
-      <button class="btn btn-ghost" onclick="addDayEntry()">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Додати запис
-      </button>
       <div style="height:16px"></div>
     </div>
 
     <!-- EVENING SCREEN -->
     <div class="screen" id="screen-evening">
       <div class="page-header">
-        <div class="page-title">⭐ Ввечері</div>
+        <div class="page-title"><svg class="title-icon star" viewBox="0 0 24 24"><polygon points="12,2.5 14.9,9 22,9.7 16.6,14.4 18.2,21.4 12,17.8 5.8,21.4 7.4,14.4 2,9.7 9.1,9"/></svg>Ввечері</div>
         <div class="page-sub" id="evening-date-label"></div>
       </div>
-      <div class="evening-badge">⭐ Сьогодні помітив</div>
+      <div class="evening-badge">Що запам'яталось за день</div>
       <div class="card">
         <div class="chip-row">
           <button class="chip" onclick="insertPrompt('Сьогодні побачив: ')">👁 Побачив</button>
@@ -300,24 +323,31 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
         <div class="page-sub">Для терапевта</div>
       </div>
       <div class="card">
-        <div class="export-section-title">Швидкий вибір</div>
-        <div class="period-row">
-          <button class="period-btn active" onclick="setExportMode('quick',7,this)">7 днів</button>
-          <button class="period-btn" onclick="setExportMode('quick',14,this)">2 тижні</button>
-          <button class="period-btn" onclick="setExportMode('quick',30,this)">Місяць</button>
+        <div class="mode-sec active" id="mode-quick">
+          <div class="export-section-title">Швидкий вибір</div>
+          <div class="period-row">
+            <button class="period-btn active" onclick="setExportMode('quick',7,this)">7 днів</button>
+            <button class="period-btn" onclick="setExportMode('quick',14,this)">2 тижні</button>
+            <button class="period-btn" onclick="setExportMode('quick',30,this)">Місяць</button>
+          </div>
         </div>
 
         <div class="divider"></div>
-        <div class="export-section-title">Або вказати дати</div>
-        <div class="date-range-row">
-          <input type="date" id="date-from" onchange="setExportMode('range')">
-          <span>—</span>
-          <input type="date" id="date-to" onchange="setExportMode('range')">
+        <div class="mode-sec" id="mode-range">
+          <div class="export-section-title">Або вказати дати</div>
+          <div class="date-range-row">
+            <input type="date" id="date-from" onchange="setExportMode('range')">
+            <span>—</span>
+            <input type="date" id="date-to" onchange="setExportMode('range')">
+          </div>
+          <div class="range-label" id="range-label"></div>
         </div>
 
         <div class="divider"></div>
-        <div class="export-section-title">Або вибрати записи вручну</div>
-        <div class="checklist" id="checklist"></div>
+        <div class="mode-sec" id="mode-manual">
+          <div class="export-section-title">Або вибрати записи вручну</div>
+          <div class="checklist" id="checklist"></div>
+        </div>
 
         <button class="btn btn-primary" onclick="buildExport()">
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
@@ -325,6 +355,19 @@ textarea::placeholder, input::placeholder { color: var(--text-hint); }
         </button>
       </div>
       <div id="export-area"></div>
+      <div class="card safety-card">
+        <div class="safety-head">
+          <svg viewBox="0 0 24 24"><path d="M12 2.5l7.5 3v6c0 4.6-3.2 8.4-7.5 9.8-4.3-1.4-7.5-5.2-7.5-9.8v-6z"/><polyline points="9 12 11.2 14.2 15.4 10"/></svg>
+          <span>Ваші записи</span>
+        </div>
+        <div class="safety-row"><span>Усього записів</span><span id="safety-count">—</span></div>
+        <div class="safety-row"><span>Останнє збереження</span><span id="safety-saved">—</span></div>
+        <div class="safety-row"><span>Копія на пристрої</span><span id="safety-backup">—</span></div>
+        <button class="btn btn-ghost" onclick="downloadBackup()" style="margin-top:10px">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Зберегти копію файлом
+        </button>
+      </div>
       <div style="height:16px"></div>
     </div>
 
@@ -380,6 +423,8 @@ let exportDays = 7;
 let dayFormEntries = [];
 let entryCounter = 0;
 let dataLoaded = false;
+let lastKnownCount = 0;
+let lastSavedAt = null;
 
 const EMOTION_COLORS = {
   'trypoga': 'emo-red', 'strakh': 'emo-red'
@@ -390,6 +435,8 @@ const EMO_BR = {'emo-red':'#F5C4B3','emo-orange':'#FAC775','emo-blue':'#B5D4F4',
 const EMO_TX = {'emo-red':'#4A1B0C','emo-orange':'#412402','emo-blue':'#042C53','emo-green':'#173404','emo-purple':'#26215C','emo-pink':'#4B1528','emo-gray':'#2C2C2A'};
 const EMO_DOT = {'emo-red':'#D85A30','emo-orange':'#BA7517','emo-blue':'#378ADD','emo-green':'#639922','emo-purple':'#534AB7','emo-pink':'#D4537E','emo-gray':'#888'};
 const EMO_PILL = {'emo-red':'#F0997B','emo-orange':'#EF9F27','emo-blue':'#85B7EB','emo-green':'#97C459','emo-purple':'#AFA9EC','emo-pink':'#ED93B1','emo-gray':'#B4B2A9'};
+const TRASH_SVG = '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>';
+const BULB_SVG = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-3.5 10.9c.5.4.8 1 .8 1.6v.5h5.4v-.5c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 2z"/></svg>';
 
 const EMOTION_MAP = [
   [['trypoga','strakh','zlist','hniv','lyut','panika'], 'emo-red'],
@@ -440,6 +487,7 @@ function setDefaultDates() {
   weekAgo.setDate(weekAgo.getDate() - 7);
   document.getElementById('date-to').value = today.toISOString().split('T')[0];
   document.getElementById('date-from').value = weekAgo.toISOString().split('T')[0];
+  updateRangeLabel();
 }
 
 function initGoogleAuth() {
@@ -498,6 +546,8 @@ async function loadData() {
       }
     }
     dataLoaded = true;
+    lastKnownCount = entryCount(data);
+    renderSafetyBlock();
     try { localStorage.setItem('cbt_backup', JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {}
     if (dayFormEntries.length === 0) addDayEntry();
     renderEveningHistory();
@@ -513,8 +563,20 @@ async function loadData() {
   }
 }
 
-async function saveData() {
+function entryCount(d) {
+  if (!d) return 0;
+  return (d.dayEntries || []).length + (d.eveningEntries || []).length;
+}
+
+async function saveData(opts) {
   if (!dataLoaded) { showToast('Зачекайте, дані ще завантажуються'); return; }
+  var allowDrop = opts && opts.allowDrop;
+  if (!allowDrop && entryCount(data) < lastKnownCount) {
+    setSaveStatus('err', 'Збереження скасовано — записів поменшало');
+    showToast('Збереження скасовано, дані не змінені');
+    return;
+  }
+  setSaveStatus('pending', 'Збереження…');
   try {
     try { localStorage.setItem('cbt_backup', JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {}
     var body = JSON.stringify(data);
@@ -525,7 +587,53 @@ async function saveData() {
       var m = await meta.json(); fileId = m.id;
       await driveRequest('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body });
     }
-  } catch(e) { showToast('Помилка збереження'); }
+    lastKnownCount = entryCount(data);
+    lastSavedAt = new Date();
+    setSaveStatus('ok', 'Збережено в Drive · ' + formatTime(lastSavedAt.toISOString()));
+    renderSafetyBlock();
+  } catch(e) {
+    setSaveStatus('err', 'Не збережено — немає зв\'язку з Drive');
+    showToast('Помилка збереження');
+  }
+}
+
+function renderSafetyBlock() {
+  var cEl = document.getElementById('safety-count');
+  if (!cEl) return;
+  cEl.textContent = entryCount(data);
+  var sEl = document.getElementById('safety-saved');
+  sEl.textContent = lastSavedAt ? formatTime(lastSavedAt.toISOString()) : 'ще не зберігалось';
+  var bEl = document.getElementById('safety-backup');
+  var has = false;
+  try { has = !!localStorage.getItem('cbt_backup'); } catch(e) {}
+  bEl.textContent = has ? 'є' : 'немає';
+  bEl.style.color = has ? '#3B6D11' : '#A32D2D';
+}
+
+function downloadBackup() {
+  try {
+    var payload = JSON.stringify({ exportedAt: new Date().toISOString(), data: data }, null, 2);
+    var blob = new Blob([payload], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'кпт-щоденник-копія-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    showToast('Копію збережено');
+  } catch(e) { showToast('Не вдалось зберегти копію'); }
+}
+
+function setSaveStatus(kind, text) {
+  var el = document.getElementById('save-status');
+  if (!el) return;
+  var icons = {
+    ok: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+    pending: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+    err: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.6"/></svg>'
+  };
+  el.className = 'save-status show ' + kind;
+  el.innerHTML = (icons[kind] || '') + '<span>' + text + '</span>';
 }
 
 function addDayEntry() {
@@ -548,7 +656,9 @@ function renderDayForms() {
       html += '<button class="del-entry-btn" onclick="removeDayEntry(\'' + e.id + '\')">&#x2715;</button>';
     }
     html += '</div>';
-    html += '<div class="field"><div class="field-label">Ситуація</div><textarea rows="2" id="' + e.id + '-sit" placeholder="Що сталось?"></textarea></div>';
+    html += '<div class="field" id="' + e.id + '-sitfield"><div class="field-label">Ситуація</div><textarea rows="2" id="' + e.id + '-sit" placeholder="Що сталось?"></textarea>';
+    html += '<button type="button" class="nosit-chip" id="' + e.id + '-nosit" onclick="toggleNoSituation(\'' + e.id + '\')">' + BULB_SVG + ' Думка без ситуації</button>';
+    html += '</div>';
     html += '<div class="field"><div class="field-label">Думка</div><textarea rows="2" id="' + e.id + '-th" placeholder="Що подумав?"></textarea></div>';
     html += '<div class="field"><div class="field-label">Емоція</div>';
     html += '<div style="display:flex;gap:8px;align-items:stretch">';
@@ -576,6 +686,15 @@ var EMO_GROUPS = [
   { cat: 'Радість', cls: 'g', items: ['Радість','Спокій','Вдячність','Гордість','Надія','Задоволення'] },
   { cat: 'Інше', cls: 'p', items: ['Подив','Сором','Провина','Збентеження','Інтерес'] }
 ];
+
+function toggleNoSituation(id) {
+  var chip = document.getElementById(id + '-nosit');
+  var ta = document.getElementById(id + '-sit');
+  if (!chip || !ta) return;
+  var on = chip.classList.toggle('active');
+  ta.style.display = on ? 'none' : '';
+  if (on) ta.value = '';
+}
 
 function toggleEmoPicker(id) {
   var picker = document.getElementById(id + '-picker');
@@ -616,7 +735,9 @@ async function saveDayEntry(id) {
   var em = document.getElementById(id + '-em').value.trim();
   var alt = document.getElementById(id + '-alt').value.trim();
   if (!sit && !th && !em && !alt) { showToast('Заповніть хоча б одне поле'); return; }
-  var entry = { id: Date.now() + Math.random(), ts: new Date().toISOString(), situation: sit, thought: th, emotion: em, altThought: alt };
+  var chip = document.getElementById(id + '-nosit');
+  var noSit = !!(chip && chip.classList.contains('active'));
+  var entry = { id: Date.now() + Math.random(), ts: new Date().toISOString(), situation: sit, thought: th, emotion: em, altThought: alt, noSituation: noSit };
   data.dayEntries.unshift(entry);
   dayFormEntries = dayFormEntries.filter(function(e) { return e.id !== id; });
   if (dayFormEntries.length === 0) addDayEntry(); else renderDayForms();
@@ -628,7 +749,8 @@ async function saveDayEntry(id) {
 
 async function deleteDayEntry(entryId) {
   data.dayEntries = data.dayEntries.filter(function(e) { return String(e.id) !== String(entryId); });
-  await saveData();
+  lastKnownCount = entryCount(data);
+  await saveData({ allowDrop: true });
   renderHistory();
   renderChecklist();
   showToast('Запис видалено');
@@ -656,7 +778,8 @@ async function saveEvening() {
 
 async function deleteEveningEntry(entryId) {
   data.eveningEntries = data.eveningEntries.filter(function(e) { return String(e.id) !== String(entryId); });
-  await saveData();
+  lastKnownCount = entryCount(data);
+  await saveData({ allowDrop: true });
   renderEveningHistory();
   renderHistory();
   showToast('Запис видалено');
@@ -743,11 +866,14 @@ function renderEveningHistory() {
     for (var k = 0; k < items.length; k++) {
       var en = items[k];
       html += '<div class="evening-hist" style="background:#fffdf5;border-color:#fac775">';
+      html += '<div class="evening-hist-row">';
       html += '<div class="evening-hist-content">';
       html += '<div class="evening-hist-time">' + formatTime(en.ts) + '</div>';
       html += '<div class="evening-hist-text">' + escHtml(en.text) + '</div>';
+      if (isToday(en.ts)) html += '<button class="edit-entry-btn" style="margin-top:8px" onclick="editEveningEntry(\'' + en.id + '\')">Редагувати</button>';
       html += '</div>';
-      html += '<button class="del-icon-btn" data-type="evening" data-id="' + en.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+      html += '<button class="del-icon-btn" data-type="evening" data-id="' + en.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">' + TRASH_SVG + '</button>';
+      html += '</div>';
       html += '</div>';
     }
   }
@@ -788,8 +914,14 @@ function renderHistory() {
         html += '<div class="history-card-header" onclick="toggleHistCard(this)">';
         html += '<span class="history-card-time">' + formatTime(e.ts) + '</span>';
         if (e.emotion) html += '<div class="history-emotion-dot" style="background:' + dot + '"></div>';
-        html += '<span class="history-card-preview"><span style="font-size:10px;color:var(--text-hint);margin-right:3px">Ситуація:</span>' + escHtml(e.situation || e.thought || '—') + '</span>';
-        html += '<button class="del-icon-btn" data-type="day" data-id="' + e.id + '" onclick="event.stopPropagation();confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+        if (e.situation) {
+          html += '<span class="history-card-preview"><span style="font-size:10px;color:var(--text-hint);margin-right:3px">Ситуація:</span>' + escHtml(e.situation) + '</span>';
+        } else if (e.thought) {
+          html += '<span class="history-card-preview"><span style="font-size:10px;color:var(--text-hint);margin-right:3px">Думка:</span>' + escHtml(e.thought) + '</span>';
+        } else {
+          html += '<span class="history-card-preview nosit-note">' + BULB_SVG + ' Думка без ситуації</span>';
+        }
+        html += '<button class="del-icon-btn" data-type="day" data-id="' + e.id + '" onclick="event.stopPropagation();confirmDeleteBtn(this)" title="Видалити">' + TRASH_SVG + '</button>';
         html += '<svg class="history-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
         html += '</div>';
         html += '<div class="history-card-body">';
@@ -810,12 +942,14 @@ function renderHistory() {
     for (var ei = 0; ei < evEntries.length; ei++) {
       var ev = evEntries[ei];
       evHtml += '<div class="evening-hist">';
+      evHtml += '<div class="evening-hist-row">';
       evHtml += '<div class="evening-hist-content">';
       evHtml += '<div class="evening-hist-time">' + formatDateTime(ev.ts) + '</div>';
       evHtml += '<div class="evening-hist-text">' + escHtml(ev.text) + '</div>';
-      if (isToday(ev.ts)) evHtml += '<button class="edit-entry-btn" style="margin-top:8px" onclick="editEveningEntry(\'' + ev.id + '\')">&#x270E; Редагувати</button>';
+      if (isToday(ev.ts)) evHtml += '<button class="edit-entry-btn" style="margin-top:8px" onclick="editEveningEntry(\'' + ev.id + '\')">Редагувати</button>';
       evHtml += '</div>';
-      evHtml += '<button class="del-icon-btn" data-type="evening" data-id="' + ev.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">&#x1F5D1;</button>';
+      evHtml += '<button class="del-icon-btn" data-type="evening" data-id="' + ev.id + '" onclick="confirmDeleteBtn(this)" title="Видалити">' + TRASH_SVG + '</button>';
+      evHtml += '</div>';
       evHtml += '</div>';
     }
     c.innerHTML = evHtml;
@@ -857,6 +991,22 @@ function setExportMode(mode, days, btn) {
     var btns2 = document.querySelectorAll('.period-btn');
     for (var j = 0; j < btns2.length; j++) btns2[j].classList.remove('active');
   }
+  var secs = { quick: 'mode-quick', range: 'mode-range', manual: 'mode-manual' };
+  for (var k in secs) {
+    var el = document.getElementById(secs[k]);
+    if (el) el.classList.toggle('active', k === mode);
+  }
+  updateRangeLabel();
+}
+
+function updateRangeLabel() {
+  var el = document.getElementById('range-label');
+  if (!el) return;
+  var f = document.getElementById('date-from').value;
+  var t = document.getElementById('date-to').value;
+  if (!f || !t) { el.textContent = ''; return; }
+  var opts = { day: 'numeric', month: 'long', year: 'numeric' };
+  el.textContent = new Date(f).toLocaleDateString('uk-UA', opts) + ' — ' + new Date(t).toLocaleDateString('uk-UA', opts);
 }
 
 function renderChecklist() {
@@ -871,7 +1021,7 @@ function renderChecklist() {
   for (var k = 0; k < all.length; k++) {
     var e = all[k];
     html += '<label class="check-item">';
-    html += '<input type="checkbox" value="' + e.id + '" data-type="' + e.type + '">';
+    html += '<input type="checkbox" value="' + e.id + '" data-type="' + e.type + '" onchange="setExportMode(\'manual\')">';
     html += '<span class="check-item-text">' + (e.type === 'evening' ? '&#x2B50; ' : '') + escHtml(e.situation || e.thought || e.text || '—') + '</span>';
     html += '<span class="check-item-meta">' + formatDateTime(e.ts) + '</span>';
     html += '</label>';
@@ -904,19 +1054,27 @@ function buildExport() {
     }
   }
   if (!dayEntries.length && !eveningEntries.length) { showToast('Немає записів для звіту'); return; }
+  dayEntries = dayEntries.slice().sort(function(a, b) { return new Date(a.ts) - new Date(b.ts); });
+  eveningEntries = eveningEntries.slice().sort(function(a, b) { return new Date(a.ts) - new Date(b.ts); });
   window._exportDay = dayEntries; window._exportEve = eveningEntries; window._exportLabel = null;
   var periodLabel = exportMode === 'quick' ? ('Останні ' + exportDays + ' днів') : exportMode === 'range' ? (document.getElementById('date-from').value + ' — ' + document.getElementById('date-to').value) : 'Вибрані записи';
   window._exportLabel = periodLabel;
   var dayHtml = '';
+  var lastDayKey = null;
   for (var di = 0; di < dayEntries.length; di++) {
     var de2 = dayEntries[di];
+    var dKey = formatDayKey(de2.ts);
+    if (dKey !== lastDayKey) {
+      dayHtml += '<div class="export-day-head">' + dKey + '</div>';
+      lastDayKey = dKey;
+    }
     var emoClass = emotionClass(de2.emotion);
     var bg = EMO_BG[emoClass] || '#fff';
     var br = EMO_BR[emoClass] || '#eee';
     var tx = EMO_TX[emoClass] || '#222';
     var pillBg = EMO_PILL[emoClass] || '#ddd';
     dayHtml += '<div class="export-entry" style="background:' + bg + '">';
-    dayHtml += '<div class="export-meta"><span class="export-type-badge">Денний</span><span class="export-time-str">' + formatDateTime(de2.ts) + '</span></div>';
+    dayHtml += '<div class="export-meta"><span class="export-type-badge">Денний</span><span class="export-time-str">' + formatTime(de2.ts) + '</span></div>';
     if (de2.situation) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.55">Ситуація</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.situation) + '</div></div>';
     if (de2.thought) dayHtml += '<div class="export-field"><div class="export-field-label" style="color:' + tx + ';opacity:.55">Думка</div><div class="export-field-val" style="color:' + tx + '">' + escHtml(de2.thought) + '</div></div>';
     if (de2.emotion) {
@@ -931,10 +1089,16 @@ function buildExport() {
     dayHtml += '</div>';
   }
   var evenHtml = '';
+  var lastEveKey = null;
   for (var ei2 = 0; ei2 < eveningEntries.length; ei2++) {
     var ev2 = eveningEntries[ei2];
+    var eKey = formatDayKey(ev2.ts);
+    if (eKey !== lastEveKey) {
+      evenHtml += '<div class="export-day-head">' + eKey + '</div>';
+      lastEveKey = eKey;
+    }
     evenHtml += '<div class="export-entry eve">';
-    evenHtml += '<div class="export-meta"><span class="export-type-badge evening">&#x2605; Вечірній</span><span class="export-time-str">' + formatDateTime(ev2.ts) + '</span></div>';
+    evenHtml += '<div class="export-meta"><span class="export-type-badge evening">&#x2605; Вечірній</span><span class="export-time-str">' + formatTime(ev2.ts) + '</span></div>';
     evenHtml += '<div class="export-field"><div class="export-field-val">' + escHtml(ev2.text) + '</div></div>';
     evenHtml += '</div>';
   }
