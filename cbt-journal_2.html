@@ -1057,7 +1057,14 @@ function buildExport() {
   dayEntries = dayEntries.slice().sort(function(a, b) { return new Date(a.ts) - new Date(b.ts); });
   eveningEntries = eveningEntries.slice().sort(function(a, b) { return new Date(a.ts) - new Date(b.ts); });
   window._exportDay = dayEntries; window._exportEve = eveningEntries; window._exportLabel = null;
-  var periodLabel = exportMode === 'quick' ? ('Останні ' + exportDays + ' днів') : exportMode === 'range' ? (document.getElementById('date-from').value + ' — ' + document.getElementById('date-to').value) : 'Вибрані записи';
+  var ukOpts = { day: 'numeric', month: 'long', year: 'numeric' };
+  var rangeText = '';
+  if (exportMode === 'range') {
+    var rf = document.getElementById('date-from').value;
+    var rt = document.getElementById('date-to').value;
+    rangeText = (rf ? new Date(rf).toLocaleDateString('uk-UA', ukOpts) : '') + ' — ' + (rt ? new Date(rt).toLocaleDateString('uk-UA', ukOpts) : '');
+  }
+  var periodLabel = exportMode === 'quick' ? ('Останні ' + exportDays + ' днів') : exportMode === 'range' ? rangeText : 'Вибрані записи';
   window._exportLabel = periodLabel;
   var dayHtml = '';
   var lastDayKey = null;
@@ -1183,7 +1190,7 @@ function doPDF(el) {
   for (var i = 0; i < kids.length; i++) {
     var node = kids[i];
     if (node.classList.contains('export-header')) continue;
-    if (node.classList.contains('export-section-title') || node.classList.contains('export-entry')) {
+    if (node.classList.contains('export-section-title') || node.classList.contains('export-day-head') || node.classList.contains('export-entry')) {
       blocks.push(node);
     }
   }
@@ -1196,10 +1203,12 @@ function doPDF(el) {
       return;
     }
     var block = blocks[idx];
+    var isHead = block.classList.contains('export-day-head') || block.classList.contains('export-section-title');
     html2canvas(block, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
       var h = canvas.height * contentW / canvas.width;
-      // if block doesn't fit on remaining space, new page
-      if (y + h > margin + maxH && y > margin) {
+      // headings need room for the entry that follows, otherwise they end up orphaned
+      var needed = isHead ? h + 28 : h;
+      if (y + needed > margin + maxH && y > margin) {
         pdf.addPage();
         y = margin;
       }
